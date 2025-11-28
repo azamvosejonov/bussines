@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice Management - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-file-invoice-dollar"></i> Invoice Management</h1>
+    <p class="text-muted">Create and manage invoices and contracts for {{ business.name }}</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Invoice List</h5>
+            </div>
+            <div class="card-body">
+                {% for invoice in invoices %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h6 class="mb-1">{{ invoice.invoice_number }}</h6>
+                                <p class="mb-1 text-muted">{{ invoice.customer.first_name }} {{ invoice.customer.last_name }}</p>
+                                <small class="text-muted">Issued: {{ invoice.issue_date.strftime('%m/%d/%Y') }}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge 
+                                    {% if invoice.status == 'paid' %}bg-success
+                                    {% elif invoice.status == 'sent' %}bg-primary
+                                    {% elif invoice.status == 'overdue' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ invoice.status.title() }}
+                                </span>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mb-1">
+                                    <strong>Amount:</strong><br>
+                                    ${{ "%.2f"|format(invoice.total_amount) }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mb-1">
+                                    <strong>Due:</strong><br>
+                                    {{ invoice.due_date.strftime('%m/%d/%Y') }}
+                                </div>
+                                {% if invoice.due_date < today and invoice.status != 'paid' %}
+                                <small class="text-danger">Overdue</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-outline-success btn-sm ms-1">
+                                    <i class="fas fa-download"></i> PDF
+                                </button>
+                                {% if invoice.status != 'paid' %}
+                                <button class="btn btn-outline-warning btn-sm ms-1">
+                                    <i class="fas fa-check"></i> Mark Paid
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if not invoices %}
+                <div class="text-center py-5">
+                    <i class="fas fa-file-invoice-dollar fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No invoices created yet. Create your first invoice below.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Create Invoice</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.customer_id.label(class="form-label") }}
+                        {{ form.customer_id(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.project_id.label(class="form-label") }}
+                        {{ form.project_id(class="form-select") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.issue_date.label(class="form-label") }}
+                                {{ form.issue_date(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.due_date.label(class="form-label") }}
+                                {{ form.due_date(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.discount_amount.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {{ form.discount_amount(class="form-control", placeholder="0.00") }}
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('web.business_roles', biz_id=business.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Management
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+services:
+  web:
+    build: .
+    user: root
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=your_secret_key_here
+      - DATABASE_URL=sqlite:///biznes.db
+      - JWT_SECRET_KEY=your_jwt_secret_key_here
+      - TELEGRAM_BOT_TOKEN=8383728565:AAFawNTUfyth51bKhSnEFNaFyD1YFmn1S6U
+      - FLASK_ENV=production
+    volumes:
+      - ./instance/biznes.db:/app/biznes.db
+      - ./app/static/uploads:/app/app/static/uploads
+    depends_on:
+      - redis
+    networks:
+      - biznes_network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - biznes_network
+
+  # Optional: Add PostgreSQL for production use
+  # postgres:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     - POSTGRES_DB=biznes
+  #     - POSTGRES_USER=biznes_user
+  #     - POSTGRES_PASSWORD=biznes_password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - biznes_network
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  biznes_network:
+    driver: bridge

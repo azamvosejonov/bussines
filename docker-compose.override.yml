@@ -1,0 +1,13 @@
+services:
+  web:
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - ./data:/app/data
+      - ./instance:/app/instance
+      - ./static/uploads:/app/app/static/uploads
+    command: python main.py

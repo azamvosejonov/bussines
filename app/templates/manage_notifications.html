@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-bell"></i> Notifications</h1>
+    <p class="text-muted">Recent alerts and notifications for {{ business.name }}</p>
+</div>
+
+<div class="mb-4">
+    <a href="{{ url_for('web.manage_alerts', biz_id=business.id) }}" class="btn btn-primary">
+        <i class="fas fa-cog"></i> Manage Alert Rules
+    </a>
+    <a href="{{ url_for('web.manage_debts', biz_id=business.id) }}" class="btn btn-warning ms-2">
+        <i class="fas fa-money-bill-wave"></i> Manage Debts
+    </a>
+</div>
+
+<div class="row">
+    {% for notification in notifications %}
+    <div class="col-md-6 mb-4">
+        <div class="card {% if notification.priority == 'urgent' %}border-danger{% elif notification.priority == 'high' %}border-warning{% endif %}">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    {% if notification.priority == 'urgent' %}
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                    {% elif notification.priority == 'high' %}
+                        <i class="fas fa-exclamation-circle text-warning"></i>
+                    {% else %}
+                        <i class="fas fa-info-circle text-info"></i>
+                    {% endif %}
+                    {{ notification.title }}
+                </h6>
+                <small class="text-muted">{{ notification.created_at.strftime('%m/%d/%Y %H:%M') }}</small>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">{{ notification.message }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-paper-plane"></i>
+                        {% if notification.notification_type == 'telegram' %}
+                            Telegram
+                        {% elif notification.notification_type == 'email' %}
+                            Email
+                        {% else %}
+                            In-App
+                        {% endif %}
+                    </small>
+                    <span class="badge 
+                        {% if notification.status == 'sent' %}bg-success
+                        {% elif notification.status == 'failed' %}bg-danger
+                        {% else %}bg-warning{% endif %}">
+                        {{ notification.status.title() }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not notifications %}
+<div class="text-center mt-5">
+    <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+    <h4>No notifications yet</h4>
+    <p>Configure alert rules to receive automatic notifications.</p>
+    <a href="{{ url_for('web.manage_alerts', biz_id=business.id) }}" class="btn btn-primary">
+        <i class="fas fa-cog"></i> Configure Alerts
+    </a>
+</div>
+{% endif %}
+{% endblock %}

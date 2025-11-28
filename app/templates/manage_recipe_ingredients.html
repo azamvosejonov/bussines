@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Recipe Ingredients - {{ recipe.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-list"></i> Recipe Ingredients</h1>
+    <p class="text-muted">{{ recipe.name }} - {{ business.name }}</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recipe Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Selling Price:</strong><br>
+                        ${{ "%.2f"|format(recipe.selling_price) }}
+                    </div>
+                    <div class="col-6">
+                        <strong>Cost Price:</strong><br>
+                        ${{ "%.2f"|format(recipe.cost_price) }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Profit:</strong><br>
+                        ${{ "%.2f"|format(recipe.selling_price - recipe.cost_price) }}
+                    </div>
+                    <div class="col-6">
+                        <strong>Margin:</strong><br>
+                        {% if recipe.cost_price > 0 %}
+                            {{ "%.1f"|format(((recipe.selling_price - recipe.cost_price) / recipe.cost_price) * 100) }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Add Ingredient</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.product_id.label(class="form-label") }}
+                        {{ form.product_id(class="form-select") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.quantity.label(class="form-label") }}
+                                {{ form.quantity(class="form-control", placeholder="e.g., 120") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.unit.label(class="form-label") }}
+                                {{ form.unit(class="form-select") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-list-ol"></i> Current Ingredients</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Unit Cost</th>
+                        <th>Total Cost</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ingredient in ingredients %}
+                    <tr>
+                        <td>{{ ingredient.product.name }}</td>
+                        <td>{{ ingredient.quantity }}</td>
+                        <td>{{ ingredient.unit }}</td>
+                        <td>${{ "%.2f"|format(ingredient.product.cost_price) }}</td>
+                        <td>${{ "%.2f"|format(ingredient.product.cost_price * ingredient.quantity) }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not ingredients %}
+        <div class="text-center py-4">
+            <i class="fas fa-list fa-2x text-muted mb-2"></i>
+            <p class="text-muted">No ingredients added yet. Add ingredients above to calculate recipe cost.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('web.manage_recipes', biz_id=business.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Recipes
+    </a>
+</div>
+{% endblock %}

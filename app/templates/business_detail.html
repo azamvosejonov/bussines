@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ business.name }} - Details{% endblock %}
+
+{% block content %}
+<h1>{{ business.name }}</h1>
+<p>Industry: {{ business.industry or 'N/A' }} | Country: {{ business.country }} | Currency: {{ business.currency }}</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Employees ({{ employees|length }})</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for emp in employees %}
+                    <li class="list-group-item">{{ emp.first_name }} {{ emp.last_name }} - {{ emp.position }} ({{ emp.base_salary }} {{ business.currency }})</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Sales</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for sale in sales %}
+                    <li class="list-group-item">{{ sale.sale_date }} - Total: {{ sale.total }} {{ business.currency }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Expenses</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for exp in expenses %}
+                    <li class="list-group-item">{{ exp.expense_date }} - {{ exp.category }}: {{ exp.amount }} {{ business.currency }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('web.business_settings', biz_id=business.id) }}" class="btn btn-primary me-2">
+        <i class="fas fa-cogs"></i> Settings
+    </a>
+    <a href="{{ url_for('web.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

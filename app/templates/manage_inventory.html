@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Management - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Business Logo" class="roles-logo mb-3">
+        <h1><i class="fas fa-boxes"></i> Inventory Management</h1>
+        <p class="text-muted">Track and manage your inventory with QR code scanning</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="mb-0">Inventory Items</h4>
+                <small class="text-muted">Total Items: {{ inventory_items|length }}</small>
+            </div>
+            <div>
+                <a href="{{ url_for('web.add_inventory_item', biz_id=business.id) }}" class="btn btn-primary me-2">
+                    <i class="fas fa-plus"></i> Add Item
+                </a>
+                <a href="{{ url_for('web.scan_qr_code', biz_id=business.id) }}" class="btn btn-info">
+                    <i class="fas fa-qrcode"></i> Scan QR
+                </a>
+            </div>
+        </div>
+
+        {% if low_stock_items %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Low Stock Alert:</strong> {{ low_stock_items|length }} items are running low on stock.
+            <a href="#low-stock" class="alert-link">View Details</a>
+        </div>
+        {% endif %}
+
+        <!-- Inventory Items Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> All Inventory Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total Value</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inventory_items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.name }}</strong>
+                                    {% if item.description %}
+                                    <br><small class="text-muted">{{ item.description[:50] }}{% if item.description|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.category or 'N/A' }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ item.quantity }}</span>
+                                    <br><small class="text-muted">Min: {{ item.min_stock_level }}</small>
+                                </td>
+                                <td>${{ "%.2f"|format(item.unit_price) }}</td>
+                                <td><strong>${{ "%.2f"|format(item.total_value) }}</strong></td>
+                                <td>{{ item.location or 'N/A' }}</td>
+                                <td>
+                                    {% if item.quantity <= item.min_stock_level %}
+                                        <span class="badge bg-danger">Low Stock</span>
+                                    {% elif item.quantity > item.max_stock_level * 0.8 %}
+                                        <span class="badge bg-warning">High Stock</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Normal</span>
+                                    {% endif %}
+                                    {% if item.expiry_date and item.expiry_date < (datetime.now().date() + timedelta(days=30)) %}
+                                        <br><small class="text-danger">Expires Soon</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('web.generate_qr_code', biz_id=business.id, item_id=item.id) }}"
+                                           class="btn btn-sm btn-outline-primary" title="Download QR Code">
+                                            <i class="fas fa-qrcode"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-info" title="View Details"
+                                                onclick="viewItemDetails({{ item.id }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning" title="Edit Item">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if not inventory_items %}
+                <div class="text-center py-5">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h4>No Inventory Items</h4>
+                    <p class="text-muted">Start by adding your first inventory item.</p>
+                    <a href="{{ url_for('web.add_inventory_item', biz_id=business.id) }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add First Item
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Low Stock Alert Section -->
+        {% if low_stock_items %}
+        <div id="low-stock" class="card mt-4">
+            <div class="card-header bg-warning">
+                <h5><i class="fas fa-exclamation-triangle"></i> Low Stock Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for item in low_stock_items %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-body">
+                                <h6 class="card-title text-danger">{{ item.name }}</h6>
+                                <p class="card-text">
+                                    <strong>Current Stock:</strong> {{ item.quantity }}<br>
+                                    <strong>Minimum Required:</strong> {{ item.min_stock_level }}<br>
+                                    <strong>Shortage:</strong> {{ item.min_stock_level - item.quantity }}
+                                </p>
+                                <a href="{{ url_for('web.scan_qr_code', biz_id=business.id) }}"
+                                   class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-plus"></i> Restock
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-primary">
+            <div class="card-body">
+                <i class="fas fa-boxes fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Total Items</h5>
+                <h3 class="text-primary">{{ inventory_items|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-warning">
+            <div class="card-body">
+                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                <h5 class="card-title">Low Stock</h5>
+                <h3 class="text-warning">{{ low_stock_items|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-success">
+            <div class="card-body">
+                <i class="fas fa-dollar-sign fa-2x text-success mb-3"></i>
+                <h5 class="card-title">Total Value</h5>
+                <h3 class="text-success">${{ "%.2f"|format(inventory_items|sum(attribute='total_value')) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-info">
+            <div class="card-body">
+                <i class="fas fa-qrcode fa-2x text-info mb-3"></i>
+                <h5 class="card-title">QR Enabled</h5>
+                <h3 class="text-info">{{ inventory_items|selectattr('qr_code_data')|list|length }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewItemDetails(itemId) {
+    // This would open a modal with item details
+    alert('Item details view would be implemented here. Item ID: ' + itemId);
+}
+
+// Auto-refresh low stock alerts every 30 seconds
+setInterval(function() {
+    // Could refresh the low stock section via AJAX
+}, 30000);
+</script>
+{% endblock %}

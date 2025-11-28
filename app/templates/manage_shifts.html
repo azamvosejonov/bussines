@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Shifts - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-calendar-alt"></i> Shift Management</h1>
+    <p class="text-muted">For {{ business.name }}</p>
+</div>
+
+<div class="mb-4">
+    <a href="{{ url_for('web.create_shift', biz_id=business.id) }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Create New Shift
+    </a>
+    <a href="{{ url_for('web.business_roles', biz_id=business.id) }}" class="btn btn-primary ms-2">
+        <i class="fas fa-users-cog"></i> Manage Roles
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Current Week Shifts ({{ week_start.strftime('%B %d') }} - {{ week_end.strftime('%B %d, %Y') }})</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shift in shifts %}
+                    <tr>
+                        <td>{{ employees | selectattr('id', 'equalto', shift.employee_id) | list | first | default({'name': 'Unknown'}) | attr('name') }}</td>
+                        <td>{{ shift.planned_start.strftime('%m/%d %H:%M') }}</td>
+                        <td>{{ shift.planned_end.strftime('%m/%d %H:%M') }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if shift.status == 'scheduled' %}bg-secondary
+                                {% elif shift.status == 'in_progress' %}bg-success
+                                {% elif shift.status == 'completed' %}bg-primary
+                                {% else %}bg-danger{% endif %}">
+                                {{ shift.status.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if shift.status == 'scheduled' %}
+                            <button class="btn btn-sm btn-success clock-in-btn" data-shift-id="{{ shift.id }}">
+                                <i class="fas fa-play"></i> Clock In
+                            </button>
+                            {% elif shift.status == 'in_progress' %}
+                            <button class="btn btn-sm btn-warning clock-out-btn" data-shift-id="{{ shift.id }}">
+                                <i class="fas fa-stop"></i> Clock Out
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Clock In functionality
+    document.querySelectorAll('.clock-in-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const shiftId = this.dataset.shiftId;
+            fetch(`/shifts/clock-in/${shiftId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.error);
+                }
+            });
+        });
+    });
+
+    // Clock Out functionality
+    document.querySelectorAll('.clock-out-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const shiftId = this.dataset.shiftId;
+            fetch(`/shifts/clock-out/${shiftId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.error);
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

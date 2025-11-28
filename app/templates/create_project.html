@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Create Project - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-plus-circle"></i> Create New Project</h1>
+    <p class="text-muted">Start a new project for {{ business.name }}</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-project-diagram"></i> Project Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control", placeholder="Project name") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=3, placeholder="Project description") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.client_id.label(class="form-label") }}
+                                {{ form.client_id(class="form-select") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.manager_id.label(class="form-label") }}
+                                {{ form.manager_id(class="form-select") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.start_date.label(class="form-label") }}
+                                {{ form.start_date(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.deadline.label(class="form-label") }}
+                                {{ form.deadline(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                {{ form.budget.label(class="form-label") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.budget(class="form-control", placeholder="0.00") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6>Project Management Features</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>📋 Task Management</h6>
+                        <ul class="small">
+                            <li>Create and assign tasks</li>
+                            <li>Track time spent</li>
+                            <li>Set priorities and deadlines</li>
+                            <li>Kanban board view</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>📊 Progress Tracking</h6>
+                        <ul class="small">
+                            <li>Automatic progress calculation</li>
+                            <li>Budget vs actual tracking</li>
+                            <li>Profit/loss analysis</li>
+                            <li>Resource utilization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

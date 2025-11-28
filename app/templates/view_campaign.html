@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Campaign Details - {{ campaign.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-rocket"></i> {{ campaign.name }}</h1>
+    <p class="text-muted">{{ campaign.description or 'Campaign management dashboard' }}</p>
+</div>
+
+<!-- Campaign Status and Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Campaign Overview</h5>
+                <span class="badge bg-{{ 'success' if campaign.status == 'active' else 'primary' if campaign.status == 'planning' else 'secondary' }} fs-6">
+                    {{ campaign.status.title() }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <strong>Type:</strong>
+                            <span class="text-capitalize">{{ campaign.campaign_type }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Priority:</strong>
+                            <span class="text-capitalize">{{ campaign.priority }}</span>
+                        </div>
+                        {% if campaign.manager %}
+                        <div class="mb-3">
+                            <strong>Manager:</strong>
+                            {{ campaign.manager.name }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {% if campaign.start_date %}
+                        <div class="mb-3">
+                            <strong>Start Date:</strong>
+                            {{ campaign.start_date.strftime('%Y-%m-%d') }}
+                        </div>
+                        {% endif %}
+                        {% if campaign.end_date %}
+                        <div class="mb-3">
+                            <strong>End Date:</strong>
+                            {{ campaign.end_date.strftime('%Y-%m-%d') }}
+                        </div>
+                        {% endif %}
+                        {% if campaign.budget %}
+                        <div class="mb-3">
+                            <strong>Budget:</strong>
+                            ${{ "%.2f"|format(campaign.budget) }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('web.manage_campaign_employees', campaign_id=campaign.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-users"></i> Manage Team
+                    </a>
+                    <a href="{{ url_for('web.manage_campaign_expenses', campaign_id=campaign.id) }}" class="btn btn-outline-danger">
+                        <i class="fas fa-dollar-sign"></i> Add Expenses
+                    </a>
+                    <a href="{{ url_for('web.manage_campaign_revenue', campaign_id=campaign.id) }}" class="btn btn-outline-success">
+                        <i class="fas fa-chart-line"></i> Add Revenue
+                    </a>
+                    <a href="{{ url_for('web.manage_campaign_tasks', campaign_id=campaign.id) }}" class="btn btn-outline-warning">
+                        <i class="fas fa-tasks"></i> Manage Tasks
+                    </a>
+                    <a href="{{ url_for('web.campaign_time_tracking', campaign_id=campaign.id) }}" class="btn btn-outline-info">
+                        <i class="fas fa-clock"></i> Time Tracking
+                    </a>
+                    <a href="{{ url_for('web.campaign_reports', campaign_id=campaign.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-file-alt"></i> View Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Summary -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-primary">
+            <div class="card-body">
+                <i class="fas fa-arrow-up fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Total Revenue</h5>
+                <h3 class="text-primary">${{ "%.2f"|format(profit_loss.total_revenue) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-danger">
+            <div class="card-body">
+                <i class="fas fa-arrow-down fa-2x text-danger mb-3"></i>
+                <h5 class="card-title">Total Expenses</h5>
+                <h3 class="text-danger">${{ "%.2f"|format(profit_loss.total_expenses) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-{{ 'success' if profit_loss.is_profitable else 'danger' }}">
+            <div class="card-body">
+                <i class="fas fa-chart-pie fa-2x text-{{ 'success' if profit_loss.is_profitable else 'danger' }} mb-3"></i>
+                <h5 class="card-title">Profit/Loss</h5>
+                <h3 class="text-{{ 'success' if profit_loss.is_profitable else 'danger' }}">
+                    ${{ "%.2f"|format(profit_loss.profit_loss) }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-info">
+            <div class="card-body">
+                <i class="fas fa-percentage fa-2x text-info mb-3"></i>
+                <h5 class="card-title">ROI</h5>
+                <h3 class="text-info">{{ "%.1f"|format(profit_loss.roi_percentage) }}%</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Campaign Analytics -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Expense Breakdown</h5>
+            </div>
+            <div class="card-body">
+                {% if analytics.expense_breakdown %}
+                {% for expense in analytics.expense_breakdown %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ expense.category.title() }}</span>
+                    <span class="badge bg-danger">${{ "%.0f"|format(expense.total) }}</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">No expenses recorded yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-users"></i> Team Performance</h5>
+            </div>
+            <div class="card-body">
+                {% if analytics.employee_stats %}
+                {% for emp in analytics.employee_stats %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong>Employee {{ emp.employee_id }}</strong>
+                        <br><small class="text-muted">{{ emp.role }}</small>
+                    </div>
+                    <div class="text-end">
+                        <div>{{ "%.1f"|format(emp.total_hours) }}h</div>
+                        <small class="text-muted">${{ "%.0f"|format(emp.total_cost) }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">No team members assigned yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Latest Expenses</h6>
+                        {% for expense in campaign.expenses[:3] %}
+                        <div class="mb-2">
+                            <small class="text-muted">{{ expense.expense_date.strftime('%Y-%m-%d') }}</small>
+                            <br>
+                            <strong>{{ expense.description }}</strong>
+                            <span class="badge bg-danger float-end">${{ "%.0f"|format(expense.amount) }}</span>
+                        </div>
+                        {% endfor %}
+                        {% if not campaign.expenses %}
+                        <small class="text-muted">No expenses recorded</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6>Latest Tasks</h6>
+                        {% for task in campaign.tasks[:3] %}
+                        <div class="mb-2">
+                            <small class="text-muted">{{ task.status.replace('_', ' ').title() }}</small>
+                            <br>
+                            <strong>{{ task.title }}</strong>
+                            {% if task.assigned_to %}
+                            <br><small class="text-muted">Assigned to team member</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if not campaign.tasks %}
+                        <small class="text-muted">No tasks created</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6>Team Members</h6>
+                        {% for employee in campaign.employees[:5] %}
+                        <div class="mb-2">
+                            <strong>{{ employee.employee.name }}</strong>
+                            <br><small class="text-muted">{{ employee.role or 'Team Member' }}</small>
+                        </div>
+                        {% endfor %}
+                        {% if not campaign.employees %}
+                        <small class="text-muted">No team members assigned</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('web.campaign_management', biz_id=business.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Campaigns
+    </a>
+</div>
+{% endblock %}

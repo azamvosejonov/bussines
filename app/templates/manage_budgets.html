@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Budgets - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-calculator"></i> Budget Management</h1>
+    <p class="text-muted">Create and monitor budgets for {{ business.name }}</p>
+</div>
+
+<div class="row">
+    <!-- Budget List -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Budgets</h5>
+            </div>
+            <div class="card-body">
+                {% if budgets %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Period</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for budget in budgets %}
+                            <tr>
+                                <td>{{ budget.name }}</td>
+                                <td class="text-capitalize">{{ budget.budget_type }}</td>
+                                <td>
+                                    {% if budget.budget_type == 'yearly' %}
+                                        {{ budget.year }}
+                                    {% elif budget.budget_type == 'monthly' %}
+                                        {{ "%02d"|format(budget.month) }}/{{ budget.year }}
+                                    {% else %}
+                                        Q{{ budget.quarter }}/{{ budget.year }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if budget.status == 'active' else 'secondary' }}">
+                                        {{ budget.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('web.view_budget', budget_id=budget.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-calculator fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No budgets created yet</h5>
+                    <p class="text-muted">Create your first budget to start planning your finances</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Budget Form -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Create New Budget</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('web.create_budget', biz_id=business.id) }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.budget_type.label(class="form-label") }}
+                        {{ form.budget_type(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.year.label(class="form-label") }}
+                        {{ form.year(class="form-control") }}
+                    </div>
+                    <div class="mb-3" id="month_field" style="display: none;">
+                        {{ form.month.label(class="form-label") }}
+                        {{ form.month(class="form-select") }}
+                    </div>
+                    <div class="mb-3" id="quarter_field" style="display: none;">
+                        {{ form.quarter.label(class="form-label") }}
+                        {{ form.quarter(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=3) }}
+                    </div>
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+
+        <!-- Expense Analysis Summary -->
+        {% if expense_analysis %}
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> Expense Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Total Expenses:</strong>
+                    <span class="float-end">${{ "%.2f"|format(expense_analysis.total_expenses) }}</span>
+                </div>
+                <div class="mb-3">
+                    <strong>Top Categories:</strong>
+                </div>
+                {% for expense in expense_analysis.expenses[:5] %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ expense.category }}</span>
+                    <span>${{ "%.2f"|format(expense.total_amount) }} ({{ "%.1f"|format(expense.percentage) }}%)</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const budgetTypeSelect = document.querySelector('[name="budget_type"]');
+    const monthField = document.getElementById('month_field');
+    const quarterField = document.getElementById('quarter_field');
+
+    function toggleFields() {
+        const selectedType = budgetTypeSelect.value;
+        monthField.style.display = selectedType === 'monthly' ? 'block' : 'none';
+        quarterField.style.display = selectedType === 'quarterly' ? 'block' : 'none';
+    }
+
+    budgetTypeSelect.addEventListener('change', toggleFields);
+    toggleFields(); // Initial call
+});
+</script>
+{% endblock %}

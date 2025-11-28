@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Create KPI - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-plus-circle"></i> Record KPI</h1>
+    <p class="text-muted">Track employee performance for {{ business.name }}</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> KPI Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.employee_id.label(class="form-label") }}
+                                {{ form.employee_id(class="form-select") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.date.label(class="form-label") }}
+                                {{ form.date(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.sales_amount.label(class="form-label") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.sales_amount(class="form-control", placeholder="0.00") }}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                {{ form.customers_served.label(class="form-label") }}
+                                {{ form.customers_served(class="form-control", placeholder="0") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.errors_count.label(class="form-label") }}
+                                {{ form.errors_count(class="form-control", placeholder="0") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.returns_count.label(class="form-label") }}
+                                {{ form.returns_count(class="form-control", placeholder="0") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.attendance_score.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.attendance_score(class="form-control", placeholder="100") }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.notes.label(class="form-label") }}
+                        {{ form.notes(class="form-control", rows=3, placeholder="Optional notes about performance") }}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

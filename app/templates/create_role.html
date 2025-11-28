@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Create Role - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-plus-circle"></i> Create New Role</h1>
+    <p class="text-muted">For {{ business.name }}</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-user-tag"></i> Role Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control", placeholder="e.g., Manager, Cashier, Waiter") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=3, placeholder="Describe the role responsibilities") }}
+                    </div>
+
+                    <h6 class="mb-3">Permissions</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                {{ form.view_employees(class="form-check-input") }}
+                                {{ form.view_employees.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.manage_employees(class="form-check-input") }}
+                                {{ form.manage_employees.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.view_sales(class="form-check-input") }}
+                                {{ form.view_sales.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.manage_sales(class="form-check-input") }}
+                                {{ form.manage_sales.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.view_expenses(class="form-check-input") }}
+                                {{ form.view_expenses.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                {{ form.manage_expenses(class="form-check-input") }}
+                                {{ form.manage_expenses.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.view_reports(class="form-check-input") }}
+                                {{ form.view_reports.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.create_reports(class="form-check-input") }}
+                                {{ form.create_reports.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.view_payroll(class="form-check-input") }}
+                                {{ form.view_payroll.label(class="form-check-label") }}
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ form.manage_payroll(class="form-check-input") }}
+                                {{ form.manage_payroll.label(class="form-check-label") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

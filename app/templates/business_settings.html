@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Business Settings - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-cogs"></i> Business Settings</h1>
+    <p class="text-muted">Configure {{ business.name }} for your specific business type</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-building"></i> General Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.currency.label(class="form-label") }}
+                                {{ form.currency(class="form-select") }}
+                                <div class="form-text">Primary currency for your business</div>
+                            </div>
+                            <div class="mb-3">
+                                {{ form.business_type.label(class="form-label") }}
+                                {{ form.business_type(class="form-select") }}
+                                <div class="form-text">Determines available features and workflows</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.business_hours_start.label(class="form-label") }}
+                                {{ form.business_hours_start(class="form-control", type="time") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.business_hours_end.label(class="form-label") }}
+                                {{ form.business_hours_end(class="form-control", type="time") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h6>Financial Settings</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.tax_rate.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.tax_rate(class="form-control", placeholder="0.0") }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">Tax rate applied to revenue</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.bonus_rate.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.bonus_rate(class="form-control", placeholder="0.0") }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">Bonus rate from revenue</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        {{ form.auto_calculate_profit(class="form-check-input") }}
+                        {{ form.auto_calculate_profit.label(class="form-check-label") }}
+                        <div class="form-text">Automatically calculate profit and employee shares</div>
+                    </div>
+
+                    <hr>
+                    <h6>Feature Settings</h6>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                {{ form.enable_recipes(class="form-check-input") }}
+                                {{ form.enable_recipes.label(class="form-check-label") }}
+                                <div class="form-text">Enable recipe and ingredient management</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                {{ form.enable_table_management(class="form-check-input") }}
+                                {{ form.enable_table_management.label(class="form-check-label") }}
+                                <div class="form-text">Enable restaurant table management</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6>Business Type Features</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>🏪 Retail</h6>
+                        <ul class="small">
+                            <li>Product inventory</li>
+                            <li>Sales tracking</li>
+                            <li>Basic reporting</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>🍽️ Restaurant</h6>
+                        <ul class="small">
+                            <li>Recipe management</li>
+                            <li>Ingredient tracking</li>
+                            <li>Table management</li>
+                            <li>Automatic inventory deduction</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>🛠️ Service</h6>
+                        <ul class="small">
+                            <li>Appointment booking</li>
+                            <li>Service tracking</li>
+                            <li>Customer management</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>🏭 Manufacturing</h6>
+                        <ul class="small">
+                            <li>Production tracking</li>
+                            <li>Raw materials</li>
+                            <li>Quality control</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

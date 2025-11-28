@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}View Report - {{ report.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h3><i class="fas fa-file-alt"></i> {{ report.title }}</h3>
+                    <small class="text-muted">{{ business.name }} | {{ report.report_type.title() }}</small>
+                </div>
+                <div>
+                    <a href="{{ url_for('web.download_report_pdf', report_id=report.id) }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                    <a href="{{ url_for('web.business_reports', biz_id=business.id) }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Reports
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>Report Type:</strong> {{ report.report_type.title() }}</p>
+                        <p><strong>Period:</strong> {{ report.date_from }} to {{ report.date_to }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Created:</strong> {{ report.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p><strong>Status:</strong>
+                            {% if report.sent_to_owner %}
+                                <span class="badge bg-success">Sent to Owner</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Not Sent</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="report-content">
+                    <h4>Report Content</h4>
+                    <div class="border p-3 bg-light" style="white-space: pre-line;">
+                        {{ report.content }}
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{{ url_for('web.download_report_pdf', report_id=report.id) }}" class="btn btn-success">
+                        <i class="fas fa-file-pdf"></i> Download as PDF
+                    </a>
+                    <a href="{{ url_for('web.business_reports', biz_id=business.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list"></i> View All Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

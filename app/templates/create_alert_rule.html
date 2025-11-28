@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Create Alert Rule - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-plus-circle"></i> Create Alert Rule</h1>
+    <p class="text-muted">Configure automatic notifications for {{ business.name }}</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-exclamation-triangle"></i> Alert Configuration</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.alert_type.label(class="form-label") }}
+                        {{ form.alert_type(class="form-select") }}
+                        <div class="form-text">
+                            Select the type of alert you want to configure.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Notification Methods</label>
+                        <div class="form-check">
+                            {{ form.telegram_enabled(class="form-check-input") }}
+                            {{ form.telegram_enabled.label(class="form-check-label") }}
+                            <small class="text-muted d-block">Requires Telegram bot setup and user chat ID</small>
+                        </div>
+                        <div class="form-check">
+                            {{ form.email_enabled(class="form-check-input") }}
+                            {{ form.email_enabled.label(class="form-check-label") }}
+                            <small class="text-muted d-block">Send email notifications</small>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6>Alert Types Explained</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>Salary Due:</strong> Alerts when employee salaries are approaching (3 days before)</li>
+                    <li><strong>Low Inventory:</strong> Alerts when product stock falls below minimum level</li>
+                    <li><strong>Debt Overdue:</strong> Alerts when debts pass their due date</li>
+                    <li><strong>Expense Reminder:</strong> Reminds about planned expenses</li>
+                    <li><strong>Report Time:</strong> Reminds when it's time to generate reports</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

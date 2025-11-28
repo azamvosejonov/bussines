@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Roles - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Business Logo" class="roles-logo mb-3">
+        <h1><i class="fas fa-users-cog"></i> Business Management</h1>
+        <p class="text-muted">Manage roles, users, and business operations for {{ business.name }}</p>
+    </div>
+</div>
+
+<div class="mb-4">
+    <a href="{{ url_for('web.create_role', biz_id=business.id) }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Create New Role
+    </a>
+    <a href="{{ url_for('web.assign_role', biz_id=business.id) }}" class="btn btn-primary ms-2">
+        <i class="fas fa-user-plus"></i> Assign Role
+    </a>
+    <a href="{{ url_for('web.manage_shifts', biz_id=business.id) }}" class="btn btn-info ms-2">
+        <i class="fas fa-calendar-alt"></i> Manage Shifts
+    </a>
+    <a href="{{ url_for('web.manage_kpi', biz_id=business.id) }}" class="btn btn-secondary ms-2">
+        <i class="fas fa-chart-line"></i> Manage KPI
+    </a>
+    <a href="{{ url_for('web.manage_recipes', biz_id=business.id) }}" class="btn btn-success ms-2">
+        <i class="fas fa-utensils"></i> Recipes
+    </a>
+    <a href="{{ url_for('web.business_settings', biz_id=business.id) }}" class="btn btn-warning ms-2">
+        <i class="fas fa-cogs"></i> Settings
+    </a>
+    <a href="{{ url_for('web.business_analytics_dashboard', biz_id=business.id) }}" class="btn btn-chart-line ms-2">
+        <i class="fas fa-chart-line"></i> Analytics
+    </a>
+    <a href="{{ url_for('web.manage_users', biz_id=business.id) }}" class="btn btn-users ms-2">
+        <i class="fas fa-users-cog"></i> Users
+    </a>
+    <a href="{{ url_for('web.manage_campaigns', biz_id=business.id) }}" class="btn btn-marketing ms-2">
+        <i class="fas fa-bullhorn"></i> Campaigns
+    </a>
+    <a href="{{ url_for('web.manage_contracts', biz_id=business.id) }}" class="btn btn-contract ms-2">
+        <i class="fas fa-file-contract"></i> Contracts
+    </a>
+    <a href="{{ url_for('web.currency_rates') }}" class="btn btn-currency ms-2">
+        <i class="fas fa-dollar-sign"></i> Currencies
+    </a>
+    <a href="{{ url_for('web.tax_calculator') }}" class="btn btn-tax ms-2">
+        <i class="fas fa-calculator"></i> Tax Calc
+    </a>
+    <a href="{{ url_for('web.currency_converter') }}" class="btn btn-exchange ms-2">
+        <i class="fas fa-exchange-alt"></i> Converter
+    </a>
+    <a href="{{ url_for('web.manage_projects', biz_id=business.id) }}" class="btn btn-primary ms-2">
+        <i class="fas fa-project-diagram"></i> Projects
+    </a>
+    <a href="{{ url_for('web.manage_inventory', biz_id=business.id) }}" class="btn btn-secondary ms-2">
+        <i class="fas fa-boxes"></i> Inventory
+    </a>
+    <a href="{{ url_for('web.manage_customers', biz_id=business.id) }}" class="btn btn-success ms-2">
+        <i class="fas fa-users"></i> CRM
+    </a>
+    <a href="{{ url_for('web.manage_invoices', biz_id=business.id) }}" class="btn btn-warning ms-2">
+        <i class="fas fa-file-invoice-dollar"></i> Invoices
+    </a>
+    <a href="{{ url_for('web.manage_cash_flow', biz_id=business.id) }}" class="btn btn-info ms-2">
+        <i class="fas fa-money-bill-wave"></i> Cash Flow
+    </a>
+    <a href="{{ url_for('web.business_reports', biz_id=business.id) }}" class="btn btn-primary ms-2">
+        <i class="fas fa-chart-bar"></i> Reports
+    </a>
+    <a href="{{ url_for('web.manage_shifts', biz_id=business.id) }}" class="btn btn-dark ms-2">
+        <i class="fas fa-clock"></i> Shifts
+    </a>
+    <a href="{{ url_for('web.manage_alerts', biz_id=business.id) }}" class="btn btn-danger ms-2">
+        <i class="fas fa-bell"></i> Alerts
+    </a>
+</div>
+
+<div class="row">
+    {% for role in roles %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-tag"></i> {{ role.name }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">{{ role.description or 'No description' }}</p>
+                <h6>Permissions:</h6>
+                <ul class="list-unstyled">
+                    {% for perm, allowed in role.permissions.items() %}
+                    {% if allowed %}
+                    <li><i class="fas fa-check text-success"></i> {{ perm.replace('_', ' ').title() }}</li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('web.edit_role', role_id=role.id) }}" class="btn btn-outline-primary btn-sm">Edit Role</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not roles %}
+<div class="text-center mt-5">
+    <i class="fas fa-users-cog fa-3x text-muted mb-3"></i>
+    <h4>No roles created yet</h4>
+    <p>Create your first role to get started with role-based access control.</p>
+    <a href="{{ url_for('web.create_role', biz_id=business.id) }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Create First Role
+    </a>
+</div>
+{% endif %}
+{% endblock %}

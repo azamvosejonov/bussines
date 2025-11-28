@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Currency Converter - Real-time Exchange Rates{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Business Logo" class="roles-logo mb-3">
+        <h1><i class="fas fa-exchange-alt"></i> Currency Converter</h1>
+        <p class="text-muted">Real-time currency conversion with live exchange rates</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 currency-converter">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-sync-alt"></i> Currency Conversion</h5>
+            </div>
+            <div class="card-body">
+                <form id="currencyForm">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount</label>
+                                <input type="number" class="form-control" id="amount" step="0.01" min="0" placeholder="100.00" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="from_currency" class="form-label">From</label>
+                                <select class="form-select" id="from_currency" required>
+                                    {% for currency in currencies %}
+                                    <option value="{{ currency }}" {% if currency == 'USD' %}selected{% endif %}>
+                                        {{ currency }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1 text-center mt-4">
+                            <i class="fas fa-arrow-right fa-2x text-primary"></i>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="to_currency" class="form-label">To</label>
+                                <select class="form-select" id="to_currency" required>
+                                    {% for currency in currencies %}
+                                    <option value="{{ currency }}" {% if currency == 'UZS' %}selected{% endif %}>
+                                        {{ currency }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-exchange-alt"></i> Convert Currency
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Results Section -->
+                <div id="results" class="d-none">
+                    <hr>
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-success">Conversion Result</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Original Amount</h6>
+                                    <h4 id="original-display">$0.00</h4>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Converted Amount</h6>
+                                    <h4 id="converted-display" class="text-success">$0.00</h4>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <small class="text-muted">Exchange Rate: <span id="rate-display">1.0000</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6><i class="fas fa-sync"></i> Update Rates</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="text-muted">Update currency rates with latest market data</p>
+                        <a href="{{ url_for('web.update_currency_rates') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-download"></i> Update Rates
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6><i class="fas fa-chart-line"></i> Rate History</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="text-muted">View historical exchange rates</p>
+                        <button class="btn btn-outline-info" disabled>
+                            <i class="fas fa-history"></i> Coming Soon
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Common Conversions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-star"></i> Popular Conversions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>USD to UZS</h6>
+                        <button class="btn btn-sm btn-outline-primary mb-2" onclick="quickConvert(1, 'USD', 'UZS')">
+                            $1 = ? UZS
+                        </button>
+
+                        <h6 class="mt-3">EUR to UZS</h6>
+                        <button class="btn btn-sm btn-outline-success mb-2" onclick="quickConvert(1, 'EUR', 'UZS')">
+                            €1 = ? UZS
+                        </button>
+
+                        <h6 class="mt-3">RUB to UZS</h6>
+                        <button class="btn btn-sm btn-outline-warning" onclick="quickConvert(1, 'RUB', 'UZS')">
+                            ₽1 = ? UZS
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>USD to EUR</h6>
+                        <button class="btn btn-sm btn-outline-info mb-2" onclick="quickConvert(1, 'USD', 'EUR')">
+                            $1 = ? €
+                        </button>
+
+                        <h6 class="mt-3">USD to RUB</h6>
+                        <button class="btn btn-sm btn-outline-danger mb-2" onclick="quickConvert(1, 'USD', 'RUB')">
+                            $1 = ? ₽
+                        </button>
+
+                        <h6 class="mt-3">Custom Amount</h6>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="scrollToForm()">
+                            <i class="fas fa-arrow-up"></i> Convert
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Currency Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Currency Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Supported Currencies:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>USD:</strong> US Dollar ($)</li>
+                            <li><strong>EUR:</strong> Euro (€)</li>
+                            <li><strong>RUB:</strong> Russian Ruble (₽)</li>
+                            <li><strong>UZS:</strong> Uzbek Som (сўм)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Additional Currencies:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>KZT:</strong> Kazakh Tenge (₸)</li>
+                            <li><strong>TRY:</strong> Turkish Lira (₺)</li>
+                            <li><strong>GBP:</strong> British Pound (£)</li>
+                            <li><strong>CNY:</strong> Chinese Yuan (¥)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-clock"></i>
+                    <strong>Real-time Rates:</strong> Exchange rates are updated from reliable financial APIs.
+                    Rates are refreshed automatically and cached for performance.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function quickConvert(amount, fromCurr, toCurr) {
+    document.getElementById('amount').value = amount;
+    document.getElementById('from_currency').value = fromCurr;
+    document.getElementById('to_currency').value = toCurr;
+
+    // Auto-submit
+    document.getElementById('currencyForm').dispatchEvent(new Event('submit'));
+}
+
+function scrollToForm() {
+    document.getElementById('currencyForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+document.getElementById('currencyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const amount = parseFloat(document.getElementById('amount').value);
+    const fromCurrency = document.getElementById('from_currency').value;
+    const toCurrency = document.getElementById('to_currency').value;
+
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+
+    // Send conversion request
+    fetch('/currency-converter/convert', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            amount: amount,
+            from_currency: fromCurrency,
+            to_currency: toCurrency
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+
+        // Show results
+        document.getElementById('results').classList.remove('d-none');
+        document.getElementById('original-display').textContent = `${fromCurrency} ${amount.toFixed(2)}`;
+        document.getElementById('original-display').style.color = 'var(--accent-blue)';
+        document.getElementById('converted-display').textContent = data.formatted_result;
+        document.getElementById('converted-display').style.color = 'var(--accent-green)';
+        document.getElementById('rate-display').textContent = data.exchange_rate;
+        document.getElementById('rate-display').style.color = 'var(--text-secondary)';
+
+        // Scroll to results
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error converting currency. Please try again.');
+    });
+});
+</script>
+{% endblock %}

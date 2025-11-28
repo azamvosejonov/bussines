@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}User Settings{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-cog"></i> User Settings</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.username.label(class="form-label") }}
+                                {{ form.username(class="form-control") }}
+                                {% if form.username.errors %}
+                                    {% for error in form.username.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.email.label(class="form-label") }}
+                                {{ form.email(class="form-control") }}
+                                {% if form.email.errors %}
+                                    {% for error in form.email.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.telegram_chat_id.label(class="form-label") }}
+                        {{ form.telegram_chat_id(class="form-control") }}
+                        <small class="form-text text-muted">Telegram Chat ID for notifications (optional)</small>
+                    </div>
+
+                    <hr>
+                    <h5>Change Password</h5>
+                    <small class="text-muted">Leave blank if you don't want to change your password</small>
+
+                    <div class="mb-3">
+                        {{ form.current_password.label(class="form-label") }}
+                        {{ form.current_password(class="form-control") }}
+                        {% if form.current_password.errors %}
+                            {% for error in form.current_password.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.new_password.label(class="form-label") }}
+                                {{ form.new_password(class="form-control") }}
+                                {% if form.new_password.errors %}
+                                    {% for error in form.new_password.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.confirm_password.label(class="form-label") }}
+                                {{ form.confirm_password(class="form-control") }}
+                                {% if form.confirm_password.errors %}
+                                    {% for error in form.confirm_password.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Website Customization</h5>
+            </div>
+            <div class="card-body">
+                <p>Customize the appearance of your website with themes, colors, and background images.</p>
+                <a href="{{ url_for('web.user_customization') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-palette"></i> Customize Website
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

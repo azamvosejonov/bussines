@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Dashboard') }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Business Logo" class="dashboard-logo mb-3">
+        <h1><i class="fas fa-user-circle"></i> {{ _('Welcome') }}, {{ user.username }}!</h1>
+        <p class="text-muted">{{ _('Role') }}: <span class="badge bg-primary">{{ user.role }}</span></p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-building fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">{{ _('Total Businesses') }}</h5>
+                <h3 class="text-primary">{{ businesses|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-success mb-3"></i>
+                <h5 class="card-title">{{ _('Employees') }}</h5>
+                <h3 class="text-success">{{ total_employees }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-2x text-warning mb-3"></i>
+                <h5 class="card-title">{{ _('Revenue') }}</h5>
+                <h3 class="text-warning" id="total-revenue">$-</h3>
+                <div class="alert alert-info">
+                    <i class="fab fa-telegram-plane"></i>
+                    <strong>{{ _('Telegram Bot') }}:</strong> {{ _('Connect with Telegram bot to receive notifications.') }}
+                    <a href="#" onclick="showTelegramModal()" class="alert-link">{{ _('How to connect') }}</a>
+                </div>
+                <div class="alert alert-success">
+                    <i class="fas fa-star"></i>
+                    <strong>{{ _('All Features') }}:</strong> {{ _('To see all available features in the system') }}
+                    <a href="{{ url_for('web.features_overview') }}" class="alert-link">{{ _('Open features list') }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if businesses %}
+<div class="row">
+    <div class="col-12">
+        <h3 class="mb-3"><i class="fas fa-building"></i> {{ _('Your Businesses') }}</h3>
+        <div class="row">
+            {% for business in businesses %}
+            <div class="col-md-4 mb-3">
+                <div class="card business-card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ business.name }}</h5>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                {{ _('Industry') }}: {{ business.industry or 'N/A' }}<br>
+                                {{ _('Country') }}: {{ business.country }}<br>
+                                {{ _('Currency') }}: {{ business.currency }}
+                            </small>
+                        </p>
+                        <div class="btn-group w-100">
+                            <a href="{{ url_for('web.dashboard') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i> {{ _('View') }}
+                            </a>
+                            <a href="{{ url_for('web.business_settings', biz_id=business.id) }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-cogs"></i> {{ _('Settings') }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Top Lists Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h3 class="mb-3"><i class="fas fa-trophy"></i> {{ _('Top Performers') }}</h3>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-clock"></i> {{ _('Top Recent Businesses') }}</h5>
+            </div>
+            <div class="card-body">
+                {% if top_businesses %}
+                    <div class="list-group list-group-flush">
+                        {% for business in top_businesses %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ business.name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ business.industry or 'N/A' }} • {{ business.country }}</small>
+                            </div>
+                            <span class="badge bg-success">{{ business.created_at.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">{{ _('No business data available') }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-users"></i> {{ _('Top Users by Business Count') }}</h5>
+            </div>
+            <div class="card-body">
+                {% if top_users %}
+                    <div class="list-group list-group-flush">
+                        {% for user_data, business_count in top_users %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ user_data.username }}</strong>
+                                <br>
+                                <small class="text-muted">{{ user_data.email }}</small>
+                            </div>
+                            <span class="badge bg-primary">{{ business_count }} {{ _('businesses') }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">{{ _('No user data available') }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load dashboard stats
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/dashboard/stats')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-businesses').textContent = data.total_businesses;
+            document.getElementById('total-employees').textContent = data.total_employees;
+            document.getElementById('total-revenue').textContent = '$' + data.total_revenue.toLocaleString();
+        })
+        .catch(error => console.error('Error loading stats:', error));
+});
+
+function showTelegramModal() {
+    // Create and show modal
+    const modalHtml = `
+    <div class="modal fade" id="telegramModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background: rgba(31, 41, 55, 0.95); color: white; border: 1px solid #374151;">
+                <div class="modal-header" style="border-bottom: 1px solid #374151;">
+                    <h5 class="modal-title"><i class="fab fa-telegram-plane text-primary"></i> Telegram Bot Ulash</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Telegram bot bilan qanday bog'lanish:</h6>
+                    <ol>
+                        <li>Telegram ilovasini oching</li>
+                        <li>Bot nomini qidiring: <code>@Business_Partner_uz_bot</code></li>
+                        <li><code>/start</code> buyrug'ini yuboring</li>
+                        <li>Bot sizning hisobingizni avtomatik aniqlaydi</li>
+                    </ol>
+
+                    <div class="alert alert-primary">
+                        <strong>Bot buyruqlari:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li><code>/start</code> - Botni ishga tushirish</li>
+                            <li><code>/stats</code> - Bugungi statistika</li>
+                            <li><code>/clockin</code> - Ishga kelish</li>
+                            <li><code>/clockout</code> - Ishdan ketish</li>
+                            <li><code>/help</code> - Yordam</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <strong>Avtomatik bildirishnomalar:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>🔔 Oylik ish haqi yaqinlashganda</li>
+                            <li>📦 Omborda mahsulot tugayotganda</li>
+                            <li>💰 Qarz muddati o'tganda</li>
+                            <li>📊 Hisobot vaqti kelganda</li>
+                            <li>⚠️ Favqulodda vaziyatlarda</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #374151;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                    <a href="https://t.me/Business_Partner_uz_bot" target="_blank" class="btn btn-primary">
+                        <i class="fab fa-telegram-plane"></i> Botga o'tish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('telegramModal'));
+    modal.show();
+
+    // Remove modal from DOM after hiding
+    document.getElementById('telegramModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
+}
+</script>
+{% endblock %}

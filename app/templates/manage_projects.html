@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Project Management - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-project-diagram"></i> Project Management</h1>
+    <p class="text-muted">Manage projects, tasks, and deadlines for {{ business.name }}</p>
+</div>
+
+<div class="mb-4">
+    <a href="{{ url_for('web.create_project', biz_id=business.id) }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Create New Project
+    </a>
+    <a href="{{ url_for('web.business_roles', biz_id=business.id) }}" class="btn btn-secondary ms-2">
+        <i class="fas fa-arrow-left"></i> Back to Management
+    </a>
+</div>
+
+<div class="row">
+    {% for project in projects %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-project-diagram"></i> {{ project.name }}</h5>
+                    <span class="badge 
+                        {% if project.status == 'completed' %}bg-success
+                        {% elif project.status == 'in_progress' %}bg-primary
+                        {% elif project.status == 'new' %}bg-secondary
+                        {% else %}bg-danger{% endif %}">
+                        {{ project.status.title() }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">{{ project.description or 'No description' }}</p>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <strong>Deadline:</strong><br>
+                        {{ project.deadline.strftime('%m/%d/%Y') if project.deadline else 'No deadline' }}
+                    </div>
+                    <div class="col-6">
+                        <strong>Budget:</strong><br>
+                        ${{ "%.2f"|format(project.budget) }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Progress:</strong>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ project.progress_percentage }}%">
+                            {{ project.progress_percentage }}%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Client:</strong>
+                    {% if project.client %}
+                        {{ project.client.first_name }} {{ project.client.last_name }}
+                    {% else %}
+                        No client assigned
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-tasks"></i> Tasks
+                    </button>
+                    <button class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-eye"></i> View Details
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not projects %}
+<div class="text-center mt-5">
+    <i class="fas fa-project-diagram fa-3x text-muted mb-3"></i>
+    <h4>No projects created yet</h4>
+    <p>Create your first project to start managing tasks and deadlines.</p>
+    <a href="{{ url_for('web.create_project', biz_id=business.id) }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Create First Project
+    </a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}CRM - Customer Management - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-users"></i> Customer Relationship Management</h1>
+    <p class="text-muted">Manage customers, track interactions, and analyze lifetime value for {{ business.name }}</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Customer List</h5>
+            </div>
+            <div class="card-body">
+                {% for customer in customers %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <h6 class="mb-1">{{ customer.first_name }} {{ customer.last_name }}</h6>
+                                <p class="mb-1 text-muted">{{ customer.email or 'No email' }}</p>
+                                <small class="text-muted">{{ customer.company or 'No company' }}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge 
+                                    {% if customer.status == 'vip' %}bg-warning
+                                    {% elif customer.status == 'active' %}bg-success
+                                    {% elif customer.status == 'potential' %}bg-primary
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ customer.status.title() }}
+                                </span>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-1">
+                                    <strong>Total Spent:</strong> ${{ "%.2f"|format(customer.total_spent) }}
+                                </div>
+                                <div>
+                                    <strong>Lifetime Value:</strong> ${{ "%.2f"|format(customer.lifetime_value) }}
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                                <button class="btn btn-outline-success btn-sm ms-1">
+                                    <i class="fas fa-plus"></i> Add Interaction
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if not customers %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No customers added yet. Add your first customer below.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Add New Customer</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.first_name.label(class="form-label") }}
+                        {{ form.first_name(class="form-control", placeholder="First name") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.last_name.label(class="form-label") }}
+                        {{ form.last_name(class="form-control", placeholder="Last name") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control", placeholder="email@example.com") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.phone.label(class="form-label") }}
+                        {{ form.phone(class="form-control", placeholder="Phone number") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.company.label(class="form-label") }}
+                        {{ form.company(class="form-control", placeholder="Company name") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.status.label(class="form-label") }}
+                        {{ form.status(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.source.label(class="form-label") }}
+                        {{ form.source(class="form-control", placeholder="How did they find us?") }}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('web.business_roles', biz_id=business.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Management
+    </a>
+</div>
+{% endblock %}

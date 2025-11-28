@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Create Recipe - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-plus-circle"></i> Create New Recipe</h1>
+    <p class="text-muted">For {{ business.name }}</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-utensils"></i> Recipe Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control", placeholder="e.g., Lavash, Burger, Pizza") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=3, placeholder="Describe the recipe") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.selling_price.label(class="form-label") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.selling_price(class="form-control", placeholder="0.00") }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.category.label(class="form-label") }}
+                                {{ form.category(class="form-select") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6>Recipe Examples</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Lavash Recipe:</h6>
+                        <ul class="list-unstyled small">
+                            <li>• Non: 1 dona</li>
+                            <li>• Go'sht: 120g</li>
+                            <li>• Pomidor: 20g</li>
+                            <li>• Sous: 15g</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Burger Recipe:</h6>
+                        <ul class="list-unstyled small">
+                            <li>• Bulochka: 1 dona</li>
+                            <li>• Go'sht kotleti: 150g</li>
+                            <li>• Pishloq: 30g</li>
+                            <li>• Salat bargi: 20g</li>
+                            <li>• Sous: 25g</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

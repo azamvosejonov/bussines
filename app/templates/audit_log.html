@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Log - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-history"></i> Audit Log</h1>
+    <p class="text-muted">Complete activity history for {{ business.name }}</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-list"></i> Recent Activities</h5>
+        <small class="text-muted">Last 100 actions</small>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Table</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in audit_logs %}
+                    <tr>
+                        <td>{{ log.timestamp.strftime('%m/%d/%Y %H:%M') }}</td>
+                        <td>
+                            {% if log.user %}
+                                {{ log.user.username }}
+                            {% else %}
+                                System
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if log.action == 'login' else 'primary' if log.action == 'create' else 'warning' if log.action == 'update' else 'danger' }}">
+                                {{ log.action.title() }}
+                            </span>
+                        </td>
+                        <td>{{ log.table_name.title() }}</td>
+                        <td>
+                            {% if log.new_values %}
+                                {% if log.new_values.get('name') %}
+                                    <strong>{{ log.new_values.name }}</strong>
+                                {% elif log.new_values.get('amount') %}
+                                    ${{ log.new_values.amount }}
+                                {% elif log.new_values.get('reason') %}
+                                    {{ log.new_values.reason }}
+                                {% else %}
+                                    Updated
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not audit_logs %}
+        <div class="text-center py-5">
+            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+            <h5>No audit logs yet</h5>
+            <p class="text-muted">Activity logs will appear here as users interact with the system.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6>Action Types</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2"><span class="badge bg-success">Login</span> - User logged in</div>
+                <div class="mb-2"><span class="badge bg-primary">Create</span> - New record created</div>
+                <div class="mb-2"><span class="badge bg-warning">Update</span> - Record modified</div>
+                <div class="mb-2"><span class="badge bg-danger">Delete</span> - Record removed</div>
+                <div class="mb-2"><span class="badge bg-info">Inventory Change</span> - Stock level changed</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6>Monitored Tables</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Users:</strong>
+                        <ul class="small list-unstyled">
+                            <li>• Login times</li>
+                            <li>• Profile changes</li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <strong>Business:</strong>
+                        <ul class="small list-unstyled">
+                            <li>• Sales</li>
+                            <li>• Expenses</li>
+                            <li>• Products</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-6">
+                        <strong>Employees:</strong>
+                        <ul class="small list-unstyled">
+                            <li>• Time tracking</li>
+                            <li>• KPI changes</li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <strong>Settings:</strong>
+                        <ul class="small list-unstyled">
+                            <li>• Configuration</li>
+                            <li>• Permissions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info mt-4">
+    <i class="fas fa-shield-alt"></i>
+    <strong>Security Note:</strong> This audit log helps track all changes made to your business data, providing transparency and accountability for all user actions.
+</div>
+{% endblock %}

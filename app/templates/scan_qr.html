@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}QR Code Scanner - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Business Logo" class="roles-logo mb-3">
+        <h1><i class="fas fa-qrcode"></i> QR Code Scanner</h1>
+        <p class="text-muted">Scan inventory item QR codes to manage stock instantly</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-camera"></i> Scan QR Code</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div id="qr-reader" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+                    <div id="qr-reader-results" class="mt-3"></div>
+                </div>
+
+                <hr>
+
+                <h6 class="text-center mb-3">Or Enter QR Code Data Manually</h6>
+                <form method="POST" id="manual-form">
+                    <div class="mb-3">
+                        <label for="qr_data" class="form-label">QR Code Data</label>
+                        <input type="text" class="form-control" id="qr_data" name="qr_data"
+                               placeholder="Paste QR code data here or scan above" required>
+                        <div class="form-text">Format: INV-{business_id}-{item_id}-{name}-{quantity}</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Process QR Code
+                        </button>
+                    </div>
+                </form>
+
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>How to use:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Click "Start Scanning" to use camera</li>
+                        <li>Point camera at inventory item QR code</li>
+                        <li>Or manually enter QR code data</li>
+                        <li>Process stock transactions instantly</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Scans -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Recent Scans</h5>
+            </div>
+            <div class="card-body">
+                <div id="recent-scans" class="list-group">
+                    <div class="list-group-item text-center text-muted">
+                        <i class="fas fa-clock"></i> No recent scans
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> QR Code Instructions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-plus text-success"></i> Stock In</h6>
+                        <p>Scan item to add stock. System will ask for quantity to add.</p>
+
+                        <h6><i class="fas fa-minus text-danger"></i> Stock Out</h6>
+                        <p>Scan item to remove stock. System checks available quantity.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-adjust text-warning"></i> Stock Adjustment</h6>
+                        <p>Correct inventory count. System records adjustment reason.</p>
+
+                        <h6><i class="fas fa-eye text-info"></i> View Details</h6>
+                        <p>Quick access to item information and transaction history.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+
+<script>
+let html5QrcodeScanner;
+
+function onScanSuccess(decodedText, decodedResult) {
+    console.log(`Code scanned: ${decodedText}`, decodedResult);
+
+    // Stop scanning
+    html5QrcodeScanner.clear();
+
+    // Process the QR code
+    document.getElementById('qr_data').value = decodedText;
+    document.getElementById('manual-form').submit();
+}
+
+function onScanFailure(error) {
+    console.warn(`Code scan error: ${error}`);
+}
+
+function startScanning() {
+    const qrReader = document.getElementById('qr-reader');
+
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", {
+            fps: 10,
+            qrbox: {width: 250, height: 250}
+        });
+
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+}
+
+function stopScanning() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+    }
+}
+
+// Auto-start scanning when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startScanning();
+});
+
+// Store recent scans in localStorage
+function addRecentScan(qrData) {
+    let recentScans = JSON.parse(localStorage.getItem('recentScans') || '[]');
+    recentScans.unshift({
+        data: qrData,
+        timestamp: new Date().toLocaleString()
+    });
+
+    // Keep only last 10 scans
+    recentScans = recentScans.slice(0, 10);
+    localStorage.setItem('recentScans', JSON.stringify(recentScans));
+
+    updateRecentScansList();
+}
+
+function updateRecentScansList() {
+    const recentScans = JSON.parse(localStorage.getItem('recentScans') || '[]');
+    const container = document.getElementById('recent-scans');
+
+    if (recentScans.length === 0) {
+        container.innerHTML = '<div class="list-group-item text-center text-muted"><i class="fas fa-clock"></i> No recent scans</div>';
+        return;
+    }
+
+    container.innerHTML = recentScans.map(scan => `
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <small class="text-muted">${scan.timestamp}</small>
+                <br>
+                <code>${scan.data}</code>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" onclick="useScan('${scan.data}')">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+function useScan(qrData) {
+    document.getElementById('qr_data').value = qrData;
+    document.getElementById('manual-form').submit();
+}
+
+// Load recent scans on page load
+document.addEventListener('DOMContentLoaded', updateRecentScansList);
+
+// Handle form submission to add to recent scans
+document.getElementById('manual-form').addEventListener('submit', function(e) {
+    const qrData = document.getElementById('qr_data').value;
+    if (qrData) {
+        addRecentScan(qrData);
+    }
+});
+</script>
+
+<style>
+#qr-reader {
+    border: 2px solid var(--accent-blue);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#qr-reader video {
+    border-radius: 8px;
+}
+</style>
+{% endblock %}

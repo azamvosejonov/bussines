@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Campaign Expenses - {{ campaign.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-dollar-sign"></i> Campaign Expenses</h1>
+    <p class="text-muted">Track and manage expenses for {{ campaign.name }}</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-dollar-sign fa-2x text-danger mb-3"></i>
+                <h5 class="card-title">Total Expenses</h5>
+                <h3 class="text-danger">${{ "%.2f"|format(campaign.total_expenses) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-wallet fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Budget</h5>
+                <h3 class="text-primary">${{ "%.2f"|format(campaign.budget or 0) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-percentage fa-2x text-warning mb-3"></i>
+                <h5 class="card-title">Budget Used</h5>
+                <h3 class="text-warning">
+                    {% if campaign.budget and campaign.budget > 0 %}
+                        {{ "%.1f"|format((campaign.total_expenses / campaign.budget) * 100) }}%
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-receipt fa-2x text-info mb-3"></i>
+                <h5 class="card-title">Total Receipts</h5>
+                <h3 class="text-info">{{ expenses|length }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Expenses List -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Expense Records</h5>
+            </div>
+            <div class="card-body">
+                {% if expenses %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Vendor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in expenses %}
+                            <tr>
+                                <td>{{ expense.expense_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ expense.description }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ expense.category.title() }}</span>
+                                </td>
+                                <td class="text-danger"><strong>${{ "%.2f"|format(expense.amount) }}</strong></td>
+                                <td>{{ expense.vendor or '-' }}</td>
+                                <td>
+                                    {% if expense.approved_by %}
+                                    <span class="badge bg-success">Approved</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No expenses recorded yet</h5>
+                    <p class="text-muted">Add your first expense to start tracking campaign costs</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Form -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Add Expense</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('web.manage_campaign_expenses', campaign_id=campaign.id) }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.category.label(class="form-label") }}
+                        {{ form.category(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.amount.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {{ form.amount(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.expense_date.label(class="form-label") }}
+                        {{ form.expense_date(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.vendor.label(class="form-label") }}
+                        {{ form.vendor(class="form-control") }}
+                    </div>
+                    {{ form.submit(class="btn btn-danger w-100") }}
+                </form>
+            </div>
+        </div>
+
+        <!-- Expense Categories Summary -->
+        {% if expenses %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> Expense by Category</h5>
+            </div>
+            <div class="card-body">
+                {% set categories = {} %}
+                {% for expense in expenses %}
+                    {% if expense.category not in categories %}
+                        {% set _ = categories.update({expense.category: 0}) %}
+                    {% endif %}
+                    {% set _ = categories.update({expense.category: categories[expense.category] + expense.amount}) %}
+                {% endfor %}
+
+                {% for category, total in categories.items() %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span>{{ category.title() }}</span>
+                    <span class="badge bg-danger">${{ "%.0f"|format(total) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('web.view_campaign', campaign_id=campaign.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Campaign
+    </a>
+</div>
+{% endblock %}

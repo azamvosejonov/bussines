@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Assign Role - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-user-plus"></i> Assign Role</h1>
+    <p class="text-muted">For {{ business.name }}</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-user-tag"></i> Assign Role to User</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.user_id.label(class="form-label") }}
+                        {{ form.user_id(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.role_id.label(class="form-label") }}
+                        {{ form.role_id(class="form-select") }}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

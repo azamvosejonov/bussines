@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}All Notifications{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-bell"></i> All Notifications</h3>
+                <small class="text-muted">View all your notifications in one place</small>
+            </div>
+            <div class="card-body">
+                {% if notifications %}
+                    <div class="list-group">
+                        {% for notification in notifications %}
+                        <div class="list-group-item {% if notification.priority == 'urgent' %}list-group-item-danger{% elif notification.priority == 'high' %}list-group-item-warning{% endif %}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ notification.title }}</h5>
+                                <small class="text-muted">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <p class="mb-1">{{ notification.message }}</p>
+                            {% if notification.business %}
+                            <small class="text-muted">
+                                <i class="fas fa-building"></i> {{ notification.business.name }}
+                                {% if notification.priority %}
+                                <span class="badge bg-{{ 'danger' if notification.priority == 'urgent' else 'warning' if notification.priority == 'high' else 'secondary' }} ms-2">
+                                    {{ notification.priority.title() }}
+                                </span>
+                                {% endif %}
+                            </small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> No Notifications</h5>
+                        <p>You don't have any notifications at this time.</p>
+                    </div>
+                {% endif %}
+
+                <div class="mt-4">
+                    <a href="{{ url_for('web.dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

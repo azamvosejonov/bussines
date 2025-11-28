@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Suppliers - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-truck"></i> Supplier Management</h1>
+    <p class="text-muted">Manage suppliers and purchase orders for {{ business.name }}</p>
+</div>
+
+<div class="row">
+    <!-- Suppliers List -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Suppliers</h5>
+            </div>
+            <div class="card-body">
+                {% if suppliers %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Category</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for supplier in suppliers %}
+                            <tr>
+                                <td>
+                                    <strong>{{ supplier.name }}</strong>
+                                    {% if supplier.payment_terms %}
+                                    <br><small class="text-muted">{{ supplier.payment_terms }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if supplier.contact_person %}
+                                    <strong>{{ supplier.contact_person }}</strong><br>
+                                    {% endif %}
+                                    {% if supplier.email %}
+                                    <a href="mailto:{{ supplier.email }}">{{ supplier.email }}</a><br>
+                                    {% endif %}
+                                    {% if supplier.phone %}
+                                    <a href="tel:{{ supplier.phone }}">{{ supplier.phone }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>{{ supplier.category or '-' }}</td>
+                                <td>
+                                    {% if supplier.rating %}
+                                    {% for i in range(5) %}
+                                        <i class="fas fa-star {{ 'text-warning' if i < supplier.rating else 'text-muted' }}"></i>
+                                    {% endfor %}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if supplier.is_active else 'secondary' }}">
+                                        {{ 'Active' if supplier.is_active else 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewSupplier({{ supplier.id }})">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No suppliers added yet</h5>
+                    <p class="text-muted">Add your first supplier to start managing your supply chain</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Supplier Form -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Add New Supplier</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('web.create_supplier', biz_id=business.id) }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.contact_person.label(class="form-label") }}
+                        {{ form.contact_person(class="form-control") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.email.label(class="form-label") }}
+                                {{ form.email(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.phone.label(class="form-label") }}
+                                {{ form.phone(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.category.label(class="form-label") }}
+                        {{ form.category(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.payment_terms.label(class="form-label") }}
+                        {{ form.payment_terms(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.rating.label(class="form-label") }}
+                        {{ form.rating(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.address.label(class="form-label") }}
+                        {{ form.address(class="form-control", rows=3) }}
+                    </div>
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Supplier Details Modal -->
+<div class="modal fade" id="supplierModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Supplier Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="supplierDetails">
+                <!-- Supplier details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewSupplier(supplierId) {
+    // This would typically make an AJAX call to get supplier details
+    // For now, just show the modal
+    const modal = new bootstrap.Modal(document.getElementById('supplierModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

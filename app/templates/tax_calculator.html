@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Tax Calculator - Automatic Tax Calculation{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Business Logo" class="roles-logo mb-3">
+        <h1><i class="fas fa-calculator"></i> Tax Calculator</h1>
+        <p class="text-muted">Automatic tax calculation for different countries and business types</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 tax-calculator">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-percentage"></i> Tax Calculation</h5>
+            </div>
+            <div class="card-body">
+                <form id="taxForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount</label>
+                                <input type="number" class="form-control" id="amount" step="0.01" min="0" placeholder="1000.00" required>
+                                <div class="form-text">Amount before tax</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="country" class="form-label">Country</label>
+                                <select class="form-select" id="country" required>
+                                    {% for country in countries %}
+                                    <option value="{{ country }}" {% if country == 'UZ' %}selected{% endif %}>
+                                        {{ country }}
+                                        {% if country == 'UZ' %}(Uzbekistan){% endif %}
+                                        {% if country == 'US' %}(USA){% endif %}
+                                        {% if country == 'RU' %}(Russia){% endif %}
+                                        {% if country == 'KZ' %}(Kazakhstan){% endif %}
+                                        {% if country == 'TR' %}(Turkey){% endif %}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="business_type" class="form-label">Business Type</label>
+                                <select class="form-select" id="business_type">
+                                    {% for btype in business_types %}
+                                    <option value="{{ btype }}" {% if btype == 'retail' %}selected{% endif %}>
+                                        {{ btype.title() }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="custom_rate" class="form-label">Custom Tax Rate (Optional)</label>
+                                <input type="number" class="form-control" id="custom_rate" step="0.01" min="0" max="100" placeholder="12.0">
+                                <div class="form-text">Override default rate (%)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i> Calculate Tax
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Results Section -->
+                <div id="results" class="d-none">
+                    <hr>
+                    <h6 class="text-center mb-3">Calculation Results</h6>
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="card border-info">
+                                <div class="card-body">
+                                    <h6 class="card-title text-info">Original Amount</h6>
+                                    <h4 id="original-amount">$0.00</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-warning">
+                                <div class="card-body">
+                                    <h6 class="card-title text-warning">Tax Amount</h6>
+                                    <h4 id="tax-amount">$0.00</h4>
+                                    <small id="tax-rate" class="text-muted">Rate: 0%</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-success">
+                                <div class="card-body">
+                                    <h6 class="card-title text-success">Total Amount</h6>
+                                    <h4 id="total-amount">$0.00</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tax Rates Table -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-table"></i> Tax Rates by Country</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Country</th>
+                                <th>Retail</th>
+                                <th>Restaurant</th>
+                                <th>Service</th>
+                                <th>Manufacturing</th>
+                                <th>IT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Uzbekistan (UZ)</strong></td>
+                                <td>12%</td>
+                                <td>12%</td>
+                                <td>12%</td>
+                                <td>12%</td>
+                                <td>12%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>USA (US)</strong></td>
+                                <td>8.25%</td>
+                                <td>8.25%</td>
+                                <td>8.25%</td>
+                                <td>8.25%</td>
+                                <td>8.25%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Russia (RU)</strong></td>
+                                <td>20%</td>
+                                <td>20%</td>
+                                <td>20%</td>
+                                <td>20%</td>
+                                <td>20%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kazakhstan (KZ)</strong></td>
+                                <td>12%</td>
+                                <td>12%</td>
+                                <td>12%</td>
+                                <td>12%</td>
+                                <td>12%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Turkey (TR)</strong></td>
+                                <td>18%</td>
+                                <td>18%</td>
+                                <td>18%</td>
+                                <td>18%</td>
+                                <td>18%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Note:</strong> Tax rates are automatically applied based on your business location and type.
+                    You can override with custom rates for special cases.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('taxForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const amount = parseFloat(document.getElementById('amount').value);
+    const country = document.getElementById('country').value;
+    const businessType = document.getElementById('business_type').value;
+    const customRate = document.getElementById('custom_rate').value;
+
+    if (!amount || amount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+    }
+
+    // Send calculation request
+    fetch('/tax-calculator/calculate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            amount: amount,
+            country: country,
+            business_type: businessType,
+            custom_rate: customRate || null
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+
+        // Show results
+        document.getElementById('results').classList.remove('d-none');
+        document.getElementById('original-amount').textContent = `$${amount.toFixed(2)}`;
+        document.getElementById('original-amount').style.color = 'var(--accent-blue)';
+        document.getElementById('tax-amount').textContent = `$${data.tax_amount}`;
+        document.getElementById('tax-amount').style.color = 'var(--accent-orange)';
+        document.getElementById('total-amount').textContent = `$${data.total_amount}`;
+        document.getElementById('total-amount').style.color = 'var(--accent-green)';
+        document.getElementById('tax-rate').textContent = `Rate: ${data.tax_rate}%`;
+        document.getElementById('tax-rate').style.color = 'var(--text-secondary)';
+
+        // Scroll to results
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error calculating tax. Please try again.');
+    });
+});
+</script>
+{% endblock %}

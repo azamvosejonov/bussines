@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Alert Rules - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-exclamation-triangle"></i> Alert Rules</h1>
+    <p class="text-muted">Configure automatic notifications for {{ business.name }}</p>
+</div>
+
+<div class="mb-4">
+    <a href="{{ url_for('web.create_alert_rule', biz_id=business.id) }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Add Alert Rule
+    </a>
+    <a href="{{ url_for('web.manage_notifications', biz_id=business.id) }}" class="btn btn-info ms-2">
+        <i class="fas fa-bell"></i> View Notifications
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-cog"></i> Active Alert Rules</h5>
+            </div>
+            <div class="card-body">
+                {% for rule in alert_rules %}
+                <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                    <div>
+                        <strong>{{ rule.alert_type.replace('_', ' ').title() }}</strong>
+                        <br>
+                        <small class="text-muted">
+                            {% if rule.telegram_enabled %}<i class="fab fa-telegram text-primary"></i> Telegram {% endif %}
+                            {% if rule.email_enabled %}<i class="fas fa-envelope text-success"></i> Email {% endif %}
+                        </small>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" 
+                               {% if rule.is_active %}checked{% endif %} 
+                               onchange="toggleRule({{ rule.id }}, this.checked)">
+                        <label class="form-check-label"></label>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not alert_rules %}
+                <p class="text-muted text-center">No alert rules configured yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-money-bill-wave"></i> Debt Reminders</h5>
+            </div>
+            <div class="card-body">
+                {% for debt in debt_reminders %}
+                <div class="border rounded p-3 mb-3 {% if debt.status == 'overdue' %}border-danger{% endif %}">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>{{ debt.debtor_name }}</strong>
+                            <span class="badge bg-secondary ms-1">{{ debt.debtor_type }}</span>
+                            <br>
+                            <small class="text-muted">${{ "%.2f"|format(debt.amount) }} due {{ debt.due_date.strftime('%m/%d/%Y') }}</small>
+                        </div>
+                        <div>
+                            {% if debt.status == 'active' %}
+                                <span class="badge bg-warning">Active</span>
+                            {% elif debt.status == 'paid' %}
+                                <span class="badge bg-success">Paid</span>
+                            {% else %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if debt.status == 'active' %}
+                    <a href="{{ url_for('web.mark_debt_paid', debt_id=debt.id) }}" class="btn btn-sm btn-success mt-2">
+                        <i class="fas fa-check"></i> Mark as Paid
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% if not debt_reminders %}
+                <p class="text-muted text-center">No debt reminders.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleRule(ruleId, isActive) {
+    fetch(`/api/alerts/toggle/${ruleId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ active: isActive })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Success message could be shown here
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

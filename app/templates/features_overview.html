@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Business Features Overview{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="text-center mb-4">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Business Logo" class="roles-logo mb-3">
+        <h1><i class="fas fa-star"></i> Business Management Features</h1>
+        <p class="text-muted">Complete overview of all available features in your business system</p>
+    </div>
+</div>
+
+<!-- Feature Categories -->
+<div class="row mb-5">
+    <!-- Core Business Management -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-building"></i> Core Business</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('web.dashboard') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt text-primary"></i> Dashboard
+                        <small class="text-muted d-block">Business overview and statistics</small>
+                    </a>
+                    <a href="{{ url_for('web.business_analytics_dashboard', biz_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-line text-success"></i> Analytics Dashboard
+                        <small class="text-muted d-block">Advanced business intelligence</small>
+                    </a>
+                    <a href="{{ url_for('web.business_reports', biz_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-bar text-info"></i> Business Reports
+                        <small class="text-muted d-block">Comprehensive reporting system</small>
+                    </a>
+                    <a href="{{ url_for('web.manage_roles') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users-cog text-warning"></i> Role Management
+                        <small class="text-muted d-block">User roles and permissions</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Tools -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-dollar-sign"></i> Financial Tools</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('web.tax_calculator') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-calculator text-primary"></i> Tax Calculator
+                        <small class="text-muted d-block">Automatic tax calculations</small>
+                    </a>
+                    <a href="{{ url_for('web.currency_converter') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-exchange-alt text-success"></i> Currency Converter
+                        <small class="text-muted d-block">Real-time exchange rates</small>
+                    </a>
+                    <a href="{{ url_for('web.manage_invoices', biz_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-invoice-dollar text-info"></i> Invoice Management
+                        <small class="text-muted d-block">Create and manage invoices</small>
+                    </a>
+                    <a href="{{ url_for('web.manage_cash_flow', biz_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-money-bill-wave text-warning"></i> Cash Flow
+                        <small class="text-muted d-block">Financial flow tracking</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory & Operations -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-cogs"></i> Operations</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('web.manage_inventory', biz_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-boxes text-primary"></i> Inventory Management
+                        <small class="text-muted d-block">QR code inventory system</small>
+                    </a>
+                    <a href="{{ url_for('web.manage_customers', biz_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users text-success"></i> Customer Management
+                        <small class="text-muted d-block">CRM system</small>
+                    </a>
+                    <a href="{{ url_for('web.manage_projects', biz_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-project-diagram text-info"></i> Project Management
+                        <small class="text-muted d-block">Task and project tracking</small>
+                    </a>
+                    <a href="{{ url_for('web.manage_users', biz_id=1) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-friends text-warning"></i> User Management
+                        <small class="text-muted d-block">Employee and user control</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Features -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5><i class="fas fa-rocket"></i> Advanced Features</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-primary h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-qrcode fa-3x text-primary mb-3"></i>
+                                <h6>QR Code System</h6>
+                                <p class="small">Scan inventory items instantly</p>
+                                <a href="{{ url_for('web.scan_qr_code', biz_id=1) }}" class="btn btn-primary btn-sm">Try QR Scanner</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-success h-100">
+                            <div class="card-body text-center">
+                                <i class="fab fa-telegram-plane fa-3x text-success mb-3"></i>
+                                <h6>Telegram Bot</h6>
+                                <p class="small">Mobile notifications & commands</p>
+                                <a href="https://t.me/Business_Partner_uz_bot" target="_blank" class="btn btn-success btn-sm">Open Bot</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-info h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-3x text-info mb-3"></i>
+                                <h6>Time Tracking</h6>
+                                <p class="small">Employee attendance system</p>
+                                <a href="{{ url_for('web.manage_shifts', biz_id=1) }}" class="btn btn-info btn-sm">Manage Shifts</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card border-warning h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-bell fa-3x text-warning mb-3"></i>
+                                <h6>Smart Alerts</h6>
+                                <p class="small">Automated notifications</p>
+                                <a href="{{ url_for('web.manage_alerts', biz_id=1) }}" class="btn btn-warning btn-sm">View Alerts</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 mb-2">
+                        <a href="{{ url_for('web.add_inventory_item', biz_id=1) }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-plus"></i> Add Item
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <a href="{{ url_for('web.create_role', biz_id=1) }}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-user-plus"></i> Create Role
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <a href="{{ url_for('web.manage_customers', biz_id=1) }}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-user"></i> Add Customer
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <a href="{{ url_for('web.create_project', biz_id=1) }}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-project-diagram"></i> New Project
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <a href="{{ url_for('web.manage_recipes', biz_id=1) }}" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-utensils"></i> Add Recipe
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <a href="{{ url_for('web.currency_rates') }}" class="btn btn-outline-dark w-100">
+                            <i class="fas fa-sync"></i> Update Rates
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Status -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> System Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <i class="fas fa-server fa-2x text-success mb-2"></i>
+                        <h6>Web Server</h6>
+                        <span class="badge bg-success">Running</span>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fab fa-telegram-plane fa-2x text-info mb-2"></i>
+                        <h6>Telegram Bot</h6>
+                        <span class="badge bg-info">Ready</span>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-database fa-2x text-primary mb-2"></i>
+                        <h6>Database</h6>
+                        <span class="badge bg-primary">Connected</span>
+                    </div>
+                    <div class="col-md-3">
+                        <i class="fas fa-qrcode fa-2x text-warning mb-2"></i>
+                        <h6>QR System</h6>
+                        <span class="badge bg-warning">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

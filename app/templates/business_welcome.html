@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-rocket"></i> Welcome to {{ business.name }}!</h1>
+    <p class="text-muted">Your business management system is ready. Here's what you can do:</p>
+</div>
+
+<div class="row">
+    <!-- Business Type Info -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas {{ business.business_type_obj.icon }}"></i> {{ business.business_type_obj.name }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">{{ business.business_type_obj.description }}</p>
+                <div class="mb-3">
+                    <strong>Enabled Features:</strong>
+                    <span class="badge bg-primary">{{ business_type_info.feature_count }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Setup -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-checklist"></i> Quick Setup</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('web.manage_users', biz_id=business.id) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users text-primary me-2"></i>Add Team Members
+                    </a>
+                    {% if business_features.customers %}
+                    <a href="{{ url_for('web.manage_customers', biz_id=business.id) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-friends text-success me-2"></i>Add Customers
+                    </a>
+                    {% endif %}
+                    {% if business_features.inventory %}
+                    <a href="{{ url_for('web.manage_inventory', biz_id=business.id) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-boxes text-warning me-2"></i>Setup Inventory
+                    </a>
+                    {% endif %}
+                    {% if business_features.campaigns %}
+                    <a href="{{ url_for('web.campaign_management', biz_id=business.id) }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-rocket text-danger me-2"></i>Create First Campaign
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Overview -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-star"></i> Your Available Features</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% if business_features.inventory %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-primary">
+                            <div class="card-body text-center">
+                                <i class="fas fa-boxes fa-2x text-primary mb-2"></i>
+                                <h6>Inventory Management</h6>
+                                <small class="text-muted">Track products and stock levels</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if business_features.customers %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-success">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x text-success mb-2"></i>
+                                <h6>Customer Management</h6>
+                                <small class="text-muted">Manage customer relationships</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if business_features.campaigns %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-danger">
+                            <div class="card-body text-center">
+                                <i class="fas fa-rocket fa-2x text-danger mb-2"></i>
+                                <h6>Campaign Management</h6>
+                                <small class="text-muted">Track projects and campaigns</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if business_features.payroll %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-warning">
+                            <div class="card-body text-center">
+                                <i class="fas fa-money-bill-wave fa-2x text-warning mb-2"></i>
+                                <h6>Payroll Management</h6>
+                                <small class="text-muted">Handle employee salaries</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if business_features.analytics %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-info">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                <h6>Business Analytics</h6>
+                                <small class="text-muted">View detailed reports</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if business_features.budgets %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-secondary">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calculator fa-2x text-secondary mb-2"></i>
+                                <h6>Budget Planning</h6>
+                                <small class="text-muted">Plan and track budgets</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        {% if business_type_info.recommendations %}
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-lightbulb"></i> Recommended Add-ons</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Based on your business type, you might benefit from these additional features:</p>
+                <ul class="list-group list-group-flush">
+                    {% for rec in business_type_info.recommendations %}
+                    <li class="list-group-item">
+                        <i class="fas fa-plus-circle text-success me-2"></i>{{ rec }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{{ url_for('web.dashboard') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+    </a>
+</div>
+{% endblock %}

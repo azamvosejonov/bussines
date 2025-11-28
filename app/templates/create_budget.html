@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Create Budget - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-plus"></i> Create New Budget</h1>
+    <p class="text-muted">Set up a new budget for {{ business.name }}</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Budget Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.name.label(class="form-label") }}
+                                {{ form.name(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.budget_type.label(class="form-label") }}
+                                {{ form.budget_type(class="form-select") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.year.label(class="form-label") }}
+                        {{ form.year(class="form-control") }}
+                    </div>
+
+                    <div class="mb-3" id="month_field" style="display: none;">
+                        {{ form.month.label(class="form-label") }}
+                        {{ form.month(class="form-select") }}
+                    </div>
+
+                    <div class="mb-3" id="quarter_field" style="display: none;">
+                        {{ form.quarter.label(class="form-label") }}
+                        {{ form.quarter(class="form-select") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=4) }}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('web.manage_budgets', biz_id=business.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const budgetTypeSelect = document.querySelector('[name="budget_type"]');
+    const monthField = document.getElementById('month_field');
+    const quarterField = document.getElementById('quarter_field');
+
+    function toggleFields() {
+        const selectedType = budgetTypeSelect.value;
+        monthField.style.display = selectedType === 'monthly' ? 'block' : 'none';
+        quarterField.style.display = selectedType === 'quarterly' ? 'block' : 'none';
+    }
+
+    budgetTypeSelect.addEventListener('change', toggleFields);
+    toggleFields(); // Initial call
+});
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Create Report - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-plus-circle"></i> Create New Report</h1>
+    <p class="text-muted">For {{ business.name }}</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Report Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control", placeholder="Enter report title") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.report_type.label(class="form-label") }}
+                        {{ form.report_type(class="form-select") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.date_from.label(class="form-label") }}
+                                {{ form.date_from(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.date_to.label(class="form-label") }}
+                                {{ form.date_to(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        {{ form.send_to_owner(class="form-check-input") }}
+                        {{ form.send_to_owner.label(class="form-check-label") }}
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

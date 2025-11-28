@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Campaign Management - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-rocket"></i> Campaign Management</h1>
+    <p class="text-muted">Manage and track all business campaigns, projects, and initiatives</p>
+</div>
+
+<div class="row">
+    <!-- Campaign Summary Cards -->
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-rocket fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Total Campaigns</h5>
+                <h3 class="text-primary">{{ campaigns|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-play-circle fa-2x text-success mb-3"></i>
+                <h5 class="card-title">Active Campaigns</h5>
+                <h3 class="text-success">{{ campaigns|selectattr('status', 'equalto', 'active')|list|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-dollar-sign fa-2x text-warning mb-3"></i>
+                <h5 class="card-title">Total Budget</h5>
+                <h3 class="text-warning">${{ "%.0f"|format(campaigns|sum(attribute='budget')) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-2x text-info mb-3"></i>
+                <h5 class="card-title">Total Employees</h5>
+                <h3 class="text-info">{{ campaign_summary|sum(attribute='active_employees') }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Create Campaign Form -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Create New Campaign</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('web.create_campaign', biz_id=business.id) }}">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.campaign_type.label(class="form-label") }}
+                        {{ form.campaign_type(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.priority.label(class="form-label") }}
+                        {{ form.priority(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.budget.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {{ form.budget(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.start_date.label(class="form-label") }}
+                                {{ form.start_date(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.end_date.label(class="form-label") }}
+                                {{ form.end_date(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.manager_id.label(class="form-label") }}
+                        {{ form.manager_id(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=3) }}
+                    </div>
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaigns List -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> Campaigns Overview</h5>
+            </div>
+            <div class="card-body">
+                {% if campaigns %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Campaign</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Profit/Loss</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for campaign in campaigns %}
+                            {% set summary = campaign_summary[loop.index0] %}
+                            <tr>
+                                <td>
+                                    <strong>{{ campaign.name }}</strong>
+                                    {% if campaign.manager %}
+                                    <br><small class="text-muted">Manager: {{ campaign.manager.name }}</small>
+                                    {% endif %}
+                                </td>
+                                <td class="text-capitalize">{{ campaign.campaign_type }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if campaign.status == 'active' else 'primary' if campaign.status == 'planning' else 'secondary' }}">
+                                        {{ campaign.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if summary %}
+                                    <div class="progress" style="width: 80px;">
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width: {{ summary.progress_percentage }}%">
+                                            {{ summary.progress_percentage }}%
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if summary %}
+                                    <span class="text-{{ 'success' if summary.profit_loss >= 0 else 'danger' }}">
+                                        ${{ "%.0f"|format(summary.profit_loss) }}
+                                    </span>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('web.view_campaign', campaign_id=campaign.id) }}"
+                                           class="btn btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                                    data-bs-toggle="dropdown">
+                                                <i class="fas fa-cog"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="{{ url_for('web.manage_campaign_employees', campaign_id=campaign.id) }}">
+                                                    <i class="fas fa-users"></i> Employees
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('web.manage_campaign_expenses', campaign_id=campaign.id) }}">
+                                                    <i class="fas fa-dollar-sign"></i> Expenses
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('web.manage_campaign_revenue', campaign_id=campaign.id) }}">
+                                                    <i class="fas fa-chart-line"></i> Revenue
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('web.manage_campaign_tasks', campaign_id=campaign.id) }}">
+                                                    <i class="fas fa-tasks"></i> Tasks
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('web.campaign_time_tracking', campaign_id=campaign.id) }}">
+                                                    <i class="fas fa-clock"></i> Time Tracking
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="{{ url_for('web.campaign_reports', campaign_id=campaign.id) }}">
+                                                    <i class="fas fa-file-alt"></i> Reports
+                                                </a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-rocket fa-4x text-muted mb-4"></i>
+                    <h4 class="text-muted">No Campaigns Yet</h4>
+                    <p class="text-muted">Create your first campaign to start managing projects and tracking performance</p>
+                    <a href="#createCampaign" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create First Campaign
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Campaign Performance Summary -->
+{% if campaign_summary %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Campaign Performance Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-primary">{{ campaign_summary|selectattr('is_profitable')|list|length }}</h4>
+                            <small class="text-muted">Profitable Campaigns</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-success">
+                                ${{ "%.0f"|format(campaign_summary|selectattr('is_profitable')|sum(attribute='profit_loss')) }}
+                            </h4>
+                            <small class="text-muted">Total Profit</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-warning">
+                                {{ "%.1f"|format(campaign_summary|average(attribute='progress_percentage')) }}%
+                            </h4>
+                            <small class="text-muted">Avg Progress</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-info">{{ campaign_summary|sum(attribute='pending_tasks') }}</h4>
+                            <small class="text-muted">Pending Tasks</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Populate manager options
+    const managerSelect = document.querySelector('[name="manager_id"]');
+    {% for employee in business.employees %}
+    managerSelect.innerHTML += '<option value="{{ employee.id }}">{{ employee.name }}</option>';
+    {% endfor %}
+});
+</script>
+{% endblock %}

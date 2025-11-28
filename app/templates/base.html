@@ -1,0 +1,353 @@
+{% set user_id = session.get('user_id') %}
+{% if user_id %}
+    {% set user_businesses = businesses %}
+    {% if user_businesses %}
+        {% set current_business = user_businesses[0] %}
+        {% if current_business.business_type_obj %}
+            {% set business_features = business_type_service.get_business_features(current_business.id) %}
+        {% endif %}
+    {% endif %}
+    {% set user_preferences = user.preferences[0] if user.preferences else None %}
+{% endif %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Business Management{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+    {% if user_preferences %}
+    <style>
+        /* User customization styles */
+        body {
+            {% if user_preferences.background_image %}
+            background-image: url('{{ user_preferences.background_image }}') !important;
+            background-size: cover !important;
+            background-attachment: fixed !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            {% endif %}
+            {% if user_preferences.theme == 'dark' %}
+            background-color: #1a1a1a !important;
+            color: #ffffff !important;
+            {% elif user_preferences.theme == 'custom' %}
+            background-color: {{ user_preferences.background_color }} !important;
+            color: #ffffff !important; /* White text on custom backgrounds for better visibility */
+            {% else %}
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            {% endif %}
+        }
+
+        /* Ensure text is always visible with background images */
+        {% if user_preferences.background_image %}
+        h1, h2, h3, h4, h5, h6, p, span, div {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7) !important;
+        }
+        /* Special styling for welcome message */
+        .welcome-section h1 {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            padding: 10px 20px !important;
+            border-radius: 10px !important;
+            display: inline-block !important;
+            {% if user_preferences.theme == 'dark' %}
+            background-color: rgba(45, 45, 45, 0.9) !important;
+            color: #ffffff !important;
+            {% endif %}
+        }
+        {% endif %}
+
+        html, body {
+            min-height: 100vh !important;
+        }
+
+        {% if user_preferences.theme == 'dark' %}
+        .card {
+            background-color: #2d2d2d !important;
+            color: #ffffff !important;
+            border-color: #404040 !important;
+        }
+        .navbar {
+            background-color: #2d2d2d !important;
+            border-bottom: 1px solid #404040 !important;
+        }
+        .navbar-nav .nav-link {
+            color: #ffffff !important;
+        }
+        {% elif user_preferences.theme == 'custom' %}
+        .navbar {
+            background-color: {{ user_preferences.navbar_color }} !important;
+        }
+        .navbar-nav .nav-link {
+            color: {{ user_preferences.nav_link_color }} !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: {{ user_preferences.accent_color }} !important;
+        }
+        .btn-primary {
+            background-color: {{ user_preferences.accent_color }} !important;
+            border-color: {{ user_preferences.accent_color }} !important;
+        }
+        .text-primary {
+            color: {{ user_preferences.accent_color }} !important;
+        }
+        {% endif %}
+
+        /* Background image specific card styling */
+        {% if user_preferences.background_image %}
+        .card {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            {% if user_preferences.theme == 'dark' %}
+            background-color: rgba(45, 45, 45, 0.95) !important;
+            {% endif %}
+        }
+        {% endif %}
+
+        /* Alert styling for theme consistency */
+        .alert {
+            {% if user_preferences.theme == 'dark' %}
+            background-color: rgba(45, 45, 45, 0.9) !important;
+            color: #ffffff !important;
+            border-color: #404040 !important;
+            {% elif user_preferences.theme == 'custom' %}
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            {% else %}
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: #000000 !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            {% endif %}
+        }
+
+        .alert-info {
+            {% if user_preferences.theme == 'dark' %}
+            background-color: rgba(33, 37, 41, 0.9) !important;
+            border-color: #404040 !important;
+            {% elif user_preferences.theme == 'custom' %}
+            background-color: rgba(23, 162, 184, 0.1) !important;
+            border-color: rgba(23, 162, 184, 0.3) !important;
+            {% else %}
+            background-color: rgba(23, 162, 184, 0.1) !important;
+            border-color: rgba(23, 162, 184, 0.2) !important;
+            {% endif %}
+        }
+
+        .alert-success {
+            {% if user_preferences.theme == 'dark' %}
+            background-color: rgba(25, 135, 84, 0.2) !important;
+            border-color: rgba(25, 135, 84, 0.4) !important;
+            {% elif user_preferences.theme == 'custom' %}
+            background-color: rgba(40, 167, 69, 0.1) !important;
+            border-color: rgba(40, 167, 69, 0.3) !important;
+            {% else %}
+            background-color: rgba(40, 167, 69, 0.1) !important;
+            border-color: rgba(40, 167, 69, 0.2) !important;
+            {% endif %}
+        }
+    </style>
+    {% endif %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.dashboard') }}">
+                <div style="background: rgba(255,255,255,0.1); padding: 8px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" height="50" style="border-radius: 5px;">
+                </div>
+                <span style="margin-left: 12px; font-weight: bold;">Biznes Boshqaruv</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('web.dashboard') }}"><i class="fas fa-tachometer-alt"></i> {{ _('Dashboard') }}</a>
+                    </li>
+                    {% if session.user_id %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="businessMenu" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-building"></i> {{ _('Business') }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_roles') }}"><i class="fas fa-users-cog"></i> {{ _('Manage Roles') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.features_overview') }}"><i class="fas fa-star"></i> {{ _('All Features') }}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% if business_features and business_features.analytics %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.business_analytics_dashboard', biz_id=current_business.id) }}"><i class="fas fa-chart-line"></i> {{ _('Analytics') }}</a></li>
+                            {% endif %}
+                            {% if business_features and business_features.inventory %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_inventory', biz_id=current_business.id) }}"><i class="fas fa-boxes"></i> {{ _('Inventory') }}</a></li>
+                            {% endif %}
+                            {% if business_features and business_features.campaigns %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.campaign_management', biz_id=current_business.id) }}"><i class="fas fa-rocket"></i> Campaigns</a></li>
+                            {% endif %}
+                            {% if business_features and business_features.budgets %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_budgets', biz_id=current_business.id) }}"><i class="fas fa-calculator"></i> Budgets</a></li>
+                            {% endif %}
+                            {% if business_features and business_features.suppliers %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_suppliers', biz_id=current_business.id) }}"><i class="fas fa-truck"></i> Suppliers</a></li>
+                            {% endif %}
+                            {% if current_business %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_users', biz_id=current_business.id) }}"><i class="fas fa-users"></i> {{ _('User Management') }}</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="toolsMenu" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-tools"></i> {{ _('Tools') }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('web.tax_calculator') }}"><i class="fas fa-calculator"></i> {{ _('Tax Calculator') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.currency_converter') }}"><i class="fas fa-exchange-alt"></i> {{ _('Currency Converter') }}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% if business_features and business_features.customers %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_customers', biz_id=current_business.id) }}"><i class="fas fa-users"></i> {{ _('Customers') }}</a></li>
+                            {% endif %}
+                            {% if business_features and business_features.sales_goals %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_sales_goals', biz_id=current_business.id) }}"><i class="fas fa-target"></i> {{ _('Sales Goals') }}</a></li>
+                            {% endif %}
+                            {% if business_features and business_features.invoices %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_invoices', biz_id=current_business.id) }}"><i class="fas fa-file-invoice-dollar"></i> {{ _('Invoices') }}</a></li>
+                            {% endif %}
+                            {% if business_features and business_features.projects %}
+                            <li><a class="dropdown-item" href="{{ url_for('web.manage_projects', biz_id=current_business.id) }}"><i class="fas fa-project-diagram"></i> Projects</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% if business_features and business_features.reports %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('web.business_reports', biz_id=current_business.id) }}"><i class="fas fa-chart-bar"></i> {{ _('Reports') }}</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell"></i> {{ _('Notifications') }} <span class="badge bg-danger notification-badge" id="notification-count">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
+                            <li><h6 class="dropdown-header">{{ _('Recent Notifications') }}</h6></li>
+                            <div id="notifications-list">
+                                <li><a class="dropdown-item text-center text-muted" href="#">Loading...</a></li>
+                            </div>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center" href="{{ url_for('web.all_notifications') }}">{{ _('View All Notifications') }}</a></li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('web.login') }}"><i class="fas fa-sign-in-alt"></i> {{ _('Login') }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('web.register') }}"><i class="fas fa-user-plus"></i> {{ _('Register') }}</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Language Switcher in Top-Right Corner -->
+    <div class="language-switcher" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+        <div class="dropdown">
+            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-globe"></i> {{ (session.get('lang', 'uz')).upper() }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('web.set_language', lang='uz') }}">
+                    <i class="fas fa-flag"></i> O'zbekcha (UZ)
+                </a></li>
+                <li><a class="dropdown-item" href="{{ url_for('web.set_language', lang='ru') }}">
+                    <i class="fas fa-flag"></i> Русский (RU)
+                </a></li>
+                <li><a class="dropdown-item" href="{{ url_for('web.set_language', lang='en') }}">
+                    <i class="fas fa-flag"></i> English (EN)
+                </a></li>
+            </ul>
+        </div>
+    </div>
+
+    {% if session.user_id %}
+    <!-- Profile Dropdown in Top-Right Corner -->
+    <div class="profile-switcher" style="position: fixed; top: 10px; right: 120px; z-index: 1000;">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user"></i> {{ session.username }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('web.user_settings') }}"><i class="fas fa-cog"></i> {{ _('Settings') }}</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('web.logout') }}"><i class="fas fa-sign-out-alt"></i> {{ _('Logout') }}</a></li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+    <script>
+        // Load notifications for navbar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNotifications();
+
+            // Refresh notifications every 30 seconds
+            setInterval(loadNotifications, 30000);
+        });
+
+        function loadNotifications() {
+            fetch('/api/notifications/recent')
+                .then(response => response.json())
+                .then(data => {
+                    const notificationList = document.getElementById('notifications-list');
+                    const notificationCount = document.getElementById('notification-count');
+
+                    if (data.notifications && data.notifications.length > 0) {
+                        notificationCount.textContent = data.notifications.length;
+                        notificationCount.style.display = 'inline';
+
+                        let html = '';
+                        data.notifications.slice(0, 5).forEach(notification => {
+                            const priorityClass = notification.priority === 'urgent' ? 'text-danger' :
+                                                notification.priority === 'high' ? 'text-warning' : '';
+                            html += `
+                                <li>
+                                    <a class="dropdown-item ${priorityClass}" href="#">
+                                        <small>${notification.title}</small><br>
+                                        <small class="text-muted">${notification.message.substring(0, 50)}...</small>
+                                    </a>
+                                </li>
+                            `;
+                        });
+
+                        if (data.notifications.length > 5) {
+                            html += `<li><a class="dropdown-item text-center text-muted" href="#">... and ${data.notifications.length - 5} more</a></li>`;
+                        }
+
+                        notificationList.innerHTML = html;
+                    } else {
+                        notificationCount.style.display = 'none';
+                        notificationList.innerHTML = '<li><a class="dropdown-item text-center text-muted" href="#">No new notifications</a></li>';
+                    }
+                })
+                .catch(error => console.error('Error loading notifications:', error));
+        }
+    </script>
+</body>
+</html>

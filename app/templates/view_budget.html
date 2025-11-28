@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Budget Details - {{ budget.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-calculator"></i> {{ budget.name }}</h1>
+    <p class="text-muted">
+        {% if budget.budget_type == 'yearly' %}
+            {{ budget.year }} Yearly Budget
+        {% elif budget.budget_type == 'monthly' %}
+            {{ "%02d"|format(budget.month) }}/{{ budget.year }} Monthly Budget
+        {% else %}
+            Q{{ budget.quarter }}/{{ budget.year }} Quarterly Budget
+        {% endif %}
+    </p>
+</div>
+
+<div class="row mb-4">
+    <!-- Budget Summary Cards -->
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-arrow-up fa-2x text-success mb-3"></i>
+                <h5 class="card-title">Budgeted Income</h5>
+                <h3 class="text-success">${{ "%.2f"|format(analysis.summary.total_budgeted_income) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-arrow-down fa-2x text-danger mb-3"></i>
+                <h5 class="card-title">Budgeted Expenses</h5>
+                <h3 class="text-danger">${{ "%.2f"|format(analysis.summary.total_budgeted_expenses) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Actual Income</h5>
+                <h3 class="text-primary">${{ "%.2f"|format(analysis.summary.total_actual_income) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-chart-pie fa-2x text-warning mb-3"></i>
+                <h5 class="card-title">Actual Expenses</h5>
+                <h3 class="text-warning">${{ "%.2f"|format(analysis.summary.total_actual_expenses) }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Net Profit Summary -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Budget vs Actual Comparison</h5>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <h4 class="text-{{ 'success' if analysis.summary.net_budgeted >= 0 else 'danger' }}">
+                                ${{ "%.2f"|format(analysis.summary.net_budgeted) }}
+                            </h4>
+                            <small class="text-muted">Budgeted Net</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <h4 class="text-{{ 'success' if analysis.summary.net_actual >= 0 else 'danger' }}">
+                                ${{ "%.2f"|format(analysis.summary.net_actual) }}
+                            </h4>
+                            <small class="text-muted">Actual Net</small>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <h5 class="text-{{ 'success' if analysis.summary.net_variance >= 0 else 'danger' }}">
+                        Variance: ${{ "%.2f"|format(analysis.summary.net_variance) }}
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Budget Item -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-plus"></i> Add Budget Item</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('web.add_budget_item', budget_id=budget.id) }}">
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.category.label(class="form-label") }}
+                                {{ form.category(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.subcategory.label(class="form-label") }}
+                                {{ form.subcategory(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.budgeted_amount.label(class="form-label") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.budgeted_amount(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.item_type.label(class="form-label") }}
+                                {{ form.item_type(class="form-select") }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows=2) }}
+                    </div>
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Budget Items Table -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-list"></i> Budget Items</h5>
+    </div>
+    <div class="card-body">
+        {% if budget.items %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Type</th>
+                        <th>Budgeted</th>
+                        <th>Actual</th>
+                        <th>Variance</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in analysis.items %}
+                    <tr>
+                        <td>{{ item.item.category }}</td>
+                        <td>{{ item.item.subcategory or '-' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if item.item.item_type == 'income' else 'danger' }}">
+                                {{ item.item.item_type.title() }}
+                            </span>
+                        </td>
+                        <td>${{ "%.2f"|format(item.item.budgeted_amount) }}</td>
+                        <td>${{ "%.2f"|format(item.item.actual_amount) }}</td>
+                        <td class="text-{{ 'success' if item.variance >= 0 else 'danger' }}">
+                            ${{ "%.2f"|format(item.variance) }}
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if item.status == 'on_track' else 'warning' if item.status == 'under_budget' else 'danger' }}">
+                                {{ item.status.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-plus-circle fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No budget items added yet</h5>
+            <p class="text-muted">Add items above to start building your budget</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('web.manage_budgets', biz_id=business.id) }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Budgets
+    </a>
+</div>
+{% endblock %}

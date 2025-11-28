@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Profit Analysis - {{ business.name }}{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1><i class="fas fa-chart-line"></i> Profit Analysis</h1>
+    <p class="text-muted">{{ business.name }} - Current Month</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-dollar-sign fa-2x text-success mb-3"></i>
+                <h5 class="card-title">Total Revenue</h5>
+                <h3 class="text-success">${{ "%.2f"|format(profit_data.total_revenue) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-minus-circle fa-2x text-danger mb-3"></i>
+                <h5 class="card-title">Total Expenses</h5>
+                <h3 class="text-danger">${{ "%.2f"|format(profit_data.total_expenses) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-money-check fa-2x text-warning mb-3"></i>
+                <h5 class="card-title">Operating Profit</h5>
+                <h3 class="text-warning">${{ "%.2f"|format(profit_data.gross_profit) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-trophy fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Net Profit</h5>
+                <h3 class="text-{{ 'success' if profit_data.net_profit >= 0 else 'danger' }}">
+                    ${{ "%.2f"|format(profit_data.net_profit) }}
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> Profit Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="profitChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Profit Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>Salary Expenses:</strong>
+                    <span class="float-end">${{ "%.2f"|format(profit_data.salary_expenses) }}</span>
+                </div>
+                <div class="mb-2">
+                    <strong>Tax Amount:</strong>
+                    <span class="float-end">${{ "%.2f"|format(profit_data.tax_amount) }}</span>
+                </div>
+                <div class="mb-2">
+                    <strong>Bonus Amount:</strong>
+                    <span class="float-end">${{ "%.2f"|format(profit_data.bonus_amount) }}</span>
+                </div>
+                <hr>
+                <div class="mb-2">
+                    <strong>Period:</strong>
+                    <span class="float-end">{{ profit_data.period_days }} days</span>
+                </div>
+                <div class="mb-2">
+                    <strong>Daily Average:</strong>
+                    <span class="float-end">${{ "%.2f"|format(profit_data.net_profit / profit_data.period_days if profit_data.period_days > 0 else 0) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if employee_shares %}
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-users"></i> Employee Profit Shares</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Share Percentage</th>
+                        <th>Share Amount</th>
+                        <th>Period</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for share in employee_shares %}
+                    <tr>
+                        <td>{{ share.employee_name }}</td>
+                        <td>{{ "%.1f"|format(share.share_percentage) }}%</td>
+                        <td>${{ "%.2f"|format(share.share_amount) }}</td>
+                        <td>{{ share.period_start.strftime('%m/%d') }} - {{ share.period_end.strftime('%m/%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <div class="alert alert-info">
+        <i class="fas fa-lightbulb"></i>
+        <strong>Tip:</strong> "Sof foyda menga qancha qoladi?" - Net profit shown above is your remaining profit after all expenses, taxes, bonuses, and employee shares.
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const profitData = {{ profit_data|tojson }};
+    const ctx = document.getElementById('profitChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Revenue', 'Expenses', 'Salaries', 'Taxes', 'Bonuses'],
+            datasets: [{
+                data: [
+                    profitData.total_revenue,
+                    profitData.total_expenses,
+                    profitData.salary_expenses,
+                    profitData.tax_amount,
+                    profitData.bonus_amount
+                ],
+                backgroundColor: [
+                    '#28a745', // Revenue - green
+                    '#dc3545', // Expenses - red
+                    '#ffc107', // Salaries - yellow
+                    '#6c757d', // Taxes - gray
+                    '#17a2b8'  // Bonuses - blue
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                title: {
+                    display: true,
+                    text: 'Profit Distribution'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

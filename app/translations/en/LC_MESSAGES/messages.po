@@ -1,0 +1,212 @@
+# English translations
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+# Navigation
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Business"
+msgstr "Business"
+
+msgid "Tools"
+msgstr "Tools"
+
+msgid "Tax Calculator"
+msgstr "Tax Calculator"
+
+msgid "Currency Converter"
+msgstr "Currency Converter"
+
+msgid "Reports"
+msgstr "Reports"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "Register"
+msgstr "Register"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Logout"
+msgstr "Logout"
+
+# Dashboard
+msgid "Welcome to Business Management System"
+msgstr "Welcome to Business Management System"
+
+msgid "Your Business Overview"
+msgstr "Your Business Overview"
+
+msgid "Total Revenue"
+msgstr "Total Revenue"
+
+msgid "Total Expenses"
+msgstr "Total Expenses"
+
+msgid "Net Profit"
+msgstr "Net Profit"
+
+msgid "Active Employees"
+msgstr "Active Employees"
+
+# Business Management
+msgid "Business Management"
+msgstr "Business Management"
+
+msgid "Manage Roles"
+msgstr "Manage Roles"
+
+msgid "All Features"
+msgstr "All Features"
+
+msgid "Analytics"
+msgstr "Analytics"
+
+msgid "Inventory"
+msgstr "Inventory"
+
+msgid "Customers"
+msgstr "Customers"
+
+msgid "User Management"
+msgstr "User Management"
+
+# Forms
+msgid "Submit"
+msgstr "Submit"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Edit"
+msgstr "Edit"
+
+# Messages
+msgid "Success"
+msgstr "Success"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Warning"
+msgstr "Warning"
+
+msgid "Information"
+msgstr "Information"
+
+msgid "Sales Goals"
+msgstr "Sales Goals"
+
+msgid "Invoices"
+msgstr "Invoices"
+
+msgid "Projects"
+msgstr "Projects"
+
+msgid "Reports"
+msgstr "Reports"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "Register"
+msgstr "Register"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Logout"
+msgstr "Logout"
+
+msgid "Welcome"
+msgstr "Welcome"
+
+msgid "Role"  
+msgstr "Role"
+
+msgid "Total Businesses"
+msgstr "Total Businesses"
+
+msgid "Employees"
+msgstr "Employees"
+
+msgid "Revenue"
+msgstr "Revenue"
+
+msgid "Telegram Bot"
+msgstr "Telegram Bot"
+
+msgid "Connect with Telegram bot to receive notifications."
+msgstr "Connect with Telegram bot to receive notifications."
+
+msgid "How to connect"
+msgstr "How to connect"
+
+msgid "All Features"
+msgstr "All Features"
+
+msgid "To see all available features in the system"
+msgstr "To see all available features in the system"
+
+msgid "Open features list"
+msgstr "Open features list"
+
+msgid "Your Businesses"
+msgstr "Your Businesses"
+
+msgid "Industry"
+msgstr "Industry"
+
+msgid "Country"
+msgstr "Country"
+
+msgid "Currency"
+msgstr "Currency"
+
+msgid "View"
+msgstr "View"
+
+
+msgid "Welcome Back"
+msgstr "Welcome Back"
+
+msgid "Sign in to your account"
+msgstr "Sign in to your account"
+
+msgid "Enter your username"
+msgstr "Enter your username"
+
+msgid "Enter your password"
+msgstr "Enter your password"
+
+msgid "Forgot password?"
+msgstr "Forgot password?"
+
+msgid "Don't have an account?"
+msgstr "Don't have an account?"
+
+msgid "Register here"
+msgstr "Register here"
+
+msgid "Recent Notifications"
+msgstr "Recent Notifications"
+
+msgid "View All Notifications"
+msgstr "View All Notifications"
